@@ -1,0 +1,1408 @@
+{
+  "version": "2.0.0",
+  "last_updated": "2026-10-02T12:00:00Z",
+  "description": "PhishSense Production Trusted Domain Knowledge Base with Multi-Tenant & PSL Awareness",
+  "verification_sources": [
+    "ICANN Root Zone Database & RFC 8482",
+    "Public Suffix List (PSL)",
+    "Reserve Bank of India (RBI) Bank Directory",
+    "US Federal CIO Council (.gov Registry)",
+    "National Informatics Centre India (NIC.in Registry)",
+    "Major Cloud Infrastructure Provider Documentation (Microsoft, AWS, Google Cloud, Cloudflare)",
+    "Official Corporate Security & Brand Registries"
+  ],
+  "trusted_domains": [
+    {
+      "id": "td-google-search",
+      "brand_name": "Google",
+      "service_name": "Google Search & Core Services",
+      "registrable_domain": "google.com",
+      "official_domains": [
+        "google.com",
+        "google.co.in",
+        "google.co.uk",
+        "google.de",
+        "google.fr",
+        "google.co.jp",
+        "google.ca",
+        "google.com.au",
+        "googleapis.com",
+        "gstatic.com",
+        "googleusercontent.com",
+        "googlevideo.com",
+        "googletagmanager.com",
+        "googlesyndication.com",
+        "google-analytics.com",
+        "googleblog.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.google.com",
+        "mail.google.com",
+        "drive.google.com",
+        "docs.google.com",
+        "accounts.google.com",
+        "maps.google.com",
+        "support.google.com",
+        "news.google.com",
+        "gemini.google.com",
+        "play.google.com",
+        "myaccount.google.com"
+      ],
+      "official_aliases": [
+        "goo.gl"
+      ],
+      "category": "Search",
+      "verification_source": "Google Official Registry & ICANN WHOIS",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Primary Google search & core digital infrastructure domains across regional ccTLDs"
+    },
+    {
+      "id": "td-google-mail",
+      "brand_name": "Google",
+      "service_name": "Gmail",
+      "registrable_domain": "gmail.com",
+      "official_domains": [
+        "gmail.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "mail.google.com",
+        "mail.google.com/mail/*"
+      ],
+      "official_aliases": [
+        "mail.google.com"
+      ],
+      "category": "Email",
+      "verification_source": "Google LLC Corporate Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Google Mail official entrypoint and subdomains"
+    },
+    {
+      "id": "td-microsoft-core",
+      "brand_name": "Microsoft",
+      "service_name": "Microsoft Enterprise Ecosystem",
+      "registrable_domain": "microsoft.com",
+      "official_domains": [
+        "microsoft.com",
+        "microsoftonline.com",
+        "microsoftonline-p.com",
+        "office.com",
+        "office.net",
+        "office365.com",
+        "onedrive.com",
+        "live.com",
+        "outlook.com",
+        "sharepoint.com",
+        "msn.com",
+        "bing.com",
+        "windows.com",
+        "azure.com",
+        "azure.net"
+      ],
+      "legitimate_subdomain_patterns": [
+        "teams.microsoft.com",
+        "login.microsoftonline.com",
+        "portal.azure.com",
+        "outlook.office.com",
+        "outlook.office365.com",
+        "admin.microsoft.com",
+        "support.microsoft.com",
+        "account.microsoft.com"
+      ],
+      "official_aliases": [
+        "msft.it",
+        "aka.ms"
+      ],
+      "category": "Technology",
+      "verification_source": "Microsoft Corp Identity & DNS Documentation",
+      "verification_date": "2026-01-15",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Microsoft 365, Office, Azure, and Teams official domains"
+    },
+    {
+      "id": "td-microsoft-cloud",
+      "brand_name": "Microsoft",
+      "service_name": "Microsoft Cloud TLD",
+      "registrable_domain": "cloud.microsoft",
+      "official_domains": [
+        "cloud.microsoft"
+      ],
+      "legitimate_subdomain_patterns": [
+        "*.cloud.microsoft",
+        "teams.cloud.microsoft",
+        "outlook.cloud.microsoft"
+      ],
+      "official_aliases": [],
+      "category": "Cloud",
+      "verification_source": "Official Microsoft Domain Guidance for .microsoft gTLD",
+      "verification_date": "2026-02-01",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official Microsoft owned .microsoft dot-brand top-level domain hierarchy"
+    },
+    {
+      "id": "td-microsoft-email",
+      "brand_name": "Microsoft",
+      "service_name": "Outlook & Live",
+      "registrable_domain": "outlook.com",
+      "official_domains": [
+        "outlook.com",
+        "live.com",
+        "hotmail.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "outlook.live.com",
+        "login.live.com"
+      ],
+      "official_aliases": [
+        "outlook.live.com"
+      ],
+      "category": "Email",
+      "verification_source": "Microsoft Identity & Exchange Online Registry",
+      "verification_date": "2026-01-15",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Microsoft Consumer Webmail platforms"
+    },
+    {
+      "id": "td-yahoo-email",
+      "brand_name": "Yahoo",
+      "service_name": "Yahoo Mail & Portal",
+      "registrable_domain": "yahoo.com",
+      "official_domains": [
+        "yahoo.com",
+        "ymail.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "mail.yahoo.com",
+        "login.yahoo.com"
+      ],
+      "official_aliases": [],
+      "category": "Email",
+      "verification_source": "Yahoo Inc Corporate Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Yahoo webmail and media portal"
+    },
+    {
+      "id": "td-apple-core",
+      "brand_name": "Apple",
+      "service_name": "Apple & iCloud",
+      "registrable_domain": "apple.com",
+      "official_domains": [
+        "apple.com",
+        "icloud.com",
+        "itunes.com",
+        "me.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "appleid.apple.com",
+        "www.icloud.com",
+        "mail.icloud.com",
+        "developer.apple.com"
+      ],
+      "official_aliases": [
+        "apple.co"
+      ],
+      "category": "Technology",
+      "verification_source": "Apple Inc Global DNS Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Apple ID, iCloud services and App Store platforms"
+    },
+    {
+      "id": "td-proton-mail",
+      "brand_name": "Proton",
+      "service_name": "Proton Mail & Privacy",
+      "registrable_domain": "proton.me",
+      "official_domains": [
+        "proton.me",
+        "protonmail.com",
+        "protonvpn.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "mail.proton.me",
+        "account.proton.me"
+      ],
+      "official_aliases": [],
+      "category": "Email",
+      "verification_source": "Proton AG Switzerland Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Encrypted communication service provider"
+    },
+    {
+      "id": "td-zoho-corp",
+      "brand_name": "Zoho",
+      "service_name": "Zoho Mail & Suite",
+      "registrable_domain": "zoho.com",
+      "official_domains": [
+        "zoho.com",
+        "zoho.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "mail.zoho.com",
+        "accounts.zoho.com"
+      ],
+      "official_aliases": [],
+      "category": "Productivity",
+      "verification_source": "Zoho Corporation Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Zoho enterprise workspace and email"
+    },
+    {
+      "id": "td-meta-social",
+      "brand_name": "Meta",
+      "service_name": "Facebook & Instagram & Threads",
+      "registrable_domain": "facebook.com",
+      "official_domains": [
+        "facebook.com",
+        "fb.com",
+        "meta.com",
+        "instagram.com",
+        "whatsapp.com",
+        "threads.net",
+        "messenger.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.facebook.com",
+        "www.instagram.com",
+        "web.whatsapp.com",
+        "www.threads.net"
+      ],
+      "official_aliases": [
+        "fb.com",
+        "fb.me",
+        "wa.me"
+      ],
+      "category": "Social Media",
+      "verification_source": "Meta Platforms Inc Corporate Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Meta social networks and instant messaging networks"
+    },
+    {
+      "id": "td-x-twitter",
+      "brand_name": "X (Twitter)",
+      "service_name": "X Microblogging",
+      "registrable_domain": "x.com",
+      "official_domains": [
+        "x.com",
+        "twitter.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "x.com",
+        "twitter.com",
+        "api.twitter.com"
+      ],
+      "official_aliases": [
+        "t.co"
+      ],
+      "category": "Social Media",
+      "verification_source": "X Corp Corporate Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "X.com and legacy twitter.com domains"
+    },
+    {
+      "id": "td-linkedin-corp",
+      "brand_name": "LinkedIn",
+      "service_name": "LinkedIn Professional Network",
+      "registrable_domain": "linkedin.com",
+      "official_domains": [
+        "linkedin.com",
+        "licdn.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.linkedin.com"
+      ],
+      "official_aliases": [
+        "lnkd.in"
+      ],
+      "category": "Social Media",
+      "verification_source": "LinkedIn Corp / Microsoft Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "LinkedIn business networking platform"
+    },
+    {
+      "id": "td-tiktok-media",
+      "brand_name": "TikTok",
+      "service_name": "TikTok Short Video",
+      "registrable_domain": "tiktok.com",
+      "official_domains": [
+        "tiktok.com",
+        "byteoversea.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.tiktok.com"
+      ],
+      "official_aliases": [
+        "vt.tiktok.com"
+      ],
+      "category": "Social Media",
+      "verification_source": "ByteDance Ltd Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "TikTok video entertainment platform"
+    },
+    {
+      "id": "td-snapchat-inc",
+      "brand_name": "Snapchat",
+      "service_name": "Snapchat Messaging",
+      "registrable_domain": "snapchat.com",
+      "official_domains": [
+        "snapchat.com",
+        "snap.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.snapchat.com",
+        "accounts.snapchat.com"
+      ],
+      "official_aliases": [],
+      "category": "Social Media",
+      "verification_source": "Snap Inc Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Snapchat social camera platform"
+    },
+    {
+      "id": "td-reddit-media",
+      "brand_name": "Reddit",
+      "service_name": "Reddit Communities",
+      "registrable_domain": "reddit.com",
+      "official_domains": [
+        "reddit.com",
+        "redd.it",
+        "redditstatic.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.reddit.com",
+        "old.reddit.com"
+      ],
+      "official_aliases": [
+        "redd.it"
+      ],
+      "category": "Social Media",
+      "verification_source": "Reddit Inc Corporate Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Reddit community forums"
+    },
+    {
+      "id": "td-pinterest-media",
+      "brand_name": "Pinterest",
+      "service_name": "Pinterest Visual Discovery",
+      "registrable_domain": "pinterest.com",
+      "official_domains": [
+        "pinterest.com",
+        "pinimg.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.pinterest.com"
+      ],
+      "official_aliases": [
+        "pin.it"
+      ],
+      "category": "Social Media",
+      "verification_source": "Pinterest Inc Corporate Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Pinterest image discovery platform"
+    },
+    {
+      "id": "td-youtube-video",
+      "brand_name": "YouTube",
+      "service_name": "YouTube Video Streaming",
+      "registrable_domain": "youtube.com",
+      "official_domains": [
+        "youtube.com",
+        "youtu.be",
+        "ytimg.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.youtube.com",
+        "music.youtube.com",
+        "studio.youtube.com"
+      ],
+      "official_aliases": [
+        "youtu.be"
+      ],
+      "category": "Entertainment",
+      "verification_source": "Google LLC / YouTube Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official YouTube video portal and short URLs"
+    },
+    {
+      "id": "td-netflix-stream",
+      "brand_name": "Netflix",
+      "service_name": "Netflix Streaming",
+      "registrable_domain": "netflix.com",
+      "official_domains": [
+        "netflix.com",
+        "nflxext.com",
+        "nflxvideo.net"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.netflix.com"
+      ],
+      "official_aliases": [],
+      "category": "Entertainment",
+      "verification_source": "Netflix Inc Corporate Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Subscription entertainment streaming"
+    },
+    {
+      "id": "td-spotify-music",
+      "brand_name": "Spotify",
+      "service_name": "Spotify Audio Streaming",
+      "registrable_domain": "spotify.com",
+      "official_domains": [
+        "spotify.com",
+        "scdn.co"
+      ],
+      "legitimate_subdomain_patterns": [
+        "open.spotify.com",
+        "www.spotify.com"
+      ],
+      "official_aliases": [
+        "spoti.fi"
+      ],
+      "category": "Entertainment",
+      "verification_source": "Spotify AB Sweden Corporate Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Music streaming service"
+    },
+    {
+      "id": "td-vimeo-media",
+      "brand_name": "Vimeo",
+      "service_name": "Vimeo Video Platform",
+      "registrable_domain": "vimeo.com",
+      "official_domains": [
+        "vimeo.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.vimeo.com",
+        "player.vimeo.com"
+      ],
+      "official_aliases": [],
+      "category": "Entertainment",
+      "verification_source": "Vimeo Inc Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Professional video hosting"
+    },
+    {
+      "id": "td-twitch-stream",
+      "brand_name": "Twitch",
+      "service_name": "Twitch Interactive Live Streaming",
+      "registrable_domain": "twitch.tv",
+      "official_domains": [
+        "twitch.tv",
+        "ttvnw.net"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.twitch.tv"
+      ],
+      "official_aliases": [],
+      "category": "Entertainment",
+      "verification_source": "Twitch Interactive / Amazon Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Live gaming and broadcast network"
+    },
+    {
+      "id": "td-soundcloud-media",
+      "brand_name": "SoundCloud",
+      "service_name": "SoundCloud Audio",
+      "registrable_domain": "soundcloud.com",
+      "official_domains": [
+        "soundcloud.com",
+        "snd.sc"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.soundcloud.com"
+      ],
+      "official_aliases": [
+        "snd.sc"
+      ],
+      "category": "Entertainment",
+      "verification_source": "SoundCloud Global Ltd Registry",
+      "verification_date": "2026-01-10",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Audio distribution and listening platform"
+    },
+    {
+      "id": "td-amazon-commerce",
+      "brand_name": "Amazon",
+      "service_name": "Amazon Global Marketplace",
+      "registrable_domain": "amazon.com",
+      "official_domains": [
+        "amazon.com",
+        "amazon.in",
+        "amazon.co.uk",
+        "amazon.de",
+        "amazon.fr",
+        "amazon.co.jp",
+        "amazon.ca",
+        "amazon.com.au",
+        "media-amazon.com",
+        "images-amazon.com",
+        "ssl-images-amazon.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.amazon.com",
+        "www.amazon.in",
+        "sellercentral.amazon.com"
+      ],
+      "official_aliases": [
+        "amzn.to"
+      ],
+      "category": "E-commerce",
+      "verification_source": "Amazon.com Inc Corporate DNS",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Global Amazon e-commerce and retail storefronts"
+    },
+    {
+      "id": "td-ebay-commerce",
+      "brand_name": "eBay",
+      "service_name": "eBay Marketplace",
+      "registrable_domain": "ebay.com",
+      "official_domains": [
+        "ebay.com",
+        "ebay.co.uk",
+        "ebay.de",
+        "ebayimg.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.ebay.com",
+        "www.ebay.co.uk"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce",
+      "verification_source": "eBay Inc Corporate Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Online auction and consumer commerce"
+    },
+    {
+      "id": "td-walmart-retail",
+      "brand_name": "Walmart",
+      "service_name": "Walmart Retail",
+      "registrable_domain": "walmart.com",
+      "official_domains": [
+        "walmart.com",
+        "walmartimages.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.walmart.com"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce",
+      "verification_source": "Walmart Inc Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Walmart retail superstore"
+    },
+    {
+      "id": "td-etsy-commerce",
+      "brand_name": "Etsy",
+      "service_name": "Etsy Marketplace",
+      "registrable_domain": "etsy.com",
+      "official_domains": [
+        "etsy.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.etsy.com"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce",
+      "verification_source": "Etsy Inc Corporate Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Handmade and vintage marketplace"
+    },
+    {
+      "id": "td-alibaba-group",
+      "brand_name": "Alibaba",
+      "service_name": "Alibaba & AliExpress",
+      "registrable_domain": "alibaba.com",
+      "official_domains": [
+        "alibaba.com",
+        "aliexpress.com",
+        "alipay.com",
+        "alicdn.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.alibaba.com",
+        "www.aliexpress.com"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce",
+      "verification_source": "Alibaba Group Corporate Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Global B2B and retail commerce"
+    },
+    {
+      "id": "td-shopify-commerce",
+      "brand_name": "Shopify",
+      "service_name": "Shopify Commerce Platform",
+      "registrable_domain": "shopify.com",
+      "official_domains": [
+        "shopify.com",
+        "myshopify.com",
+        "shopifycdn.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.shopify.com",
+        "admin.shopify.com"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce",
+      "verification_source": "Shopify Inc Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": true,
+      "trusted_score": 0.5,
+      "notes": "Commerce infrastructure with user-managed sub-stores on myshopify.com"
+    },
+    {
+      "id": "td-temu-commerce",
+      "brand_name": "Temu",
+      "service_name": "Temu Shopping",
+      "registrable_domain": "temu.com",
+      "official_domains": [
+        "temu.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.temu.com"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce",
+      "verification_source": "Whaleco Inc / PDD Holdings",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Retail shopping application"
+    },
+    {
+      "id": "td-bestbuy-retail",
+      "brand_name": "Best Buy",
+      "service_name": "Best Buy Electronics",
+      "registrable_domain": "bestbuy.com",
+      "official_domains": [
+        "bestbuy.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.bestbuy.com"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce",
+      "verification_source": "Best Buy Co Inc Registry",
+      "verification_date": "2026-01-12",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Consumer electronics retailer"
+    },
+    {
+      "id": "td-paypal-payment",
+      "brand_name": "PayPal",
+      "service_name": "PayPal & Venmo Payments",
+      "registrable_domain": "paypal.com",
+      "official_domains": [
+        "paypal.com",
+        "paypal-communication.com",
+        "venmo.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.paypal.com",
+        "paypal.me"
+      ],
+      "official_aliases": [
+        "paypal.me"
+      ],
+      "category": "Payments",
+      "verification_source": "PayPal Holdings Inc Corporate Registry",
+      "verification_date": "2026-01-08",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Major global digital wallet and payments infrastructure"
+    },
+    {
+      "id": "td-stripe-payment",
+      "brand_name": "Stripe",
+      "service_name": "Stripe Payment Infrastructure",
+      "registrable_domain": "stripe.com",
+      "official_domains": [
+        "stripe.com",
+        "stripe.network"
+      ],
+      "legitimate_subdomain_patterns": [
+        "dashboard.stripe.com",
+        "checkout.stripe.com"
+      ],
+      "official_aliases": [],
+      "category": "Payments",
+      "verification_source": "Stripe Inc Corporate Registry",
+      "verification_date": "2026-01-08",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Global payment processing platform"
+    },
+    {
+      "id": "td-square-payment",
+      "brand_name": "Block (Square)",
+      "service_name": "Square & Cash App",
+      "registrable_domain": "squareup.com",
+      "official_domains": [
+        "squareup.com",
+        "square.site",
+        "cash.app"
+      ],
+      "legitimate_subdomain_patterns": [
+        "squareup.com"
+      ],
+      "official_aliases": [],
+      "category": "Payments",
+      "verification_source": "Block Inc Corporate Registry",
+      "verification_date": "2026-01-08",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Merchant and peer-to-peer payment ecosystem"
+    },
+    {
+      "id": "td-zelle-payment",
+      "brand_name": "Zelle",
+      "service_name": "Zelle Pay",
+      "registrable_domain": "zellepay.com",
+      "official_domains": [
+        "zellepay.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.zellepay.com"
+      ],
+      "official_aliases": [],
+      "category": "Payments",
+      "verification_source": "Early Warning Services LLC",
+      "verification_date": "2026-01-08",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "US bank-backed digital payment network"
+    },
+    {
+      "id": "td-wise-payment",
+      "brand_name": "Wise",
+      "service_name": "Wise International Transfers",
+      "registrable_domain": "wise.com",
+      "official_domains": [
+        "wise.com",
+        "transferwise.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "wise.com"
+      ],
+      "official_aliases": [],
+      "category": "Payments",
+      "verification_source": "Wise Payments Ltd / FCA UK",
+      "verification_date": "2026-01-08",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Cross-border financial transfer network"
+    },
+    {
+      "id": "td-card-networks",
+      "brand_name": "Card Networks",
+      "service_name": "Visa, Mastercard & Amex",
+      "registrable_domain": "visa.com",
+      "official_domains": [
+        "visa.com",
+        "mastercard.com",
+        "mastercard.us",
+        "americanexpress.com",
+        "amex.co"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.visa.com",
+        "www.mastercard.com",
+        "www.americanexpress.com"
+      ],
+      "official_aliases": [],
+      "category": "Payments",
+      "verification_source": "Global Payment Card Consortium Registries",
+      "verification_date": "2026-01-08",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "International credit and debit card settlement networks"
+    },
+    {
+      "id": "td-sbi-bank",
+      "brand_name": "State Bank of India",
+      "service_name": "SBI Net Banking",
+      "registrable_domain": "sbi.co.in",
+      "official_domains": [
+        "sbi.co.in",
+        "onlinesbi.sbi",
+        "onlinesbi.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "retail.onlinesbi.sbi",
+        "www.onlinesbi.sbi",
+        "www.sbi.co.in"
+      ],
+      "official_aliases": [],
+      "category": "Banking",
+      "verification_source": "Reserve Bank of India (RBI) Official Directory & SBI Security Advisory",
+      "verification_date": "2026-01-05",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "India's largest public sector bank. Requires live threat intel scrutiny."
+    },
+    {
+      "id": "td-hdfc-bank",
+      "brand_name": "HDFC Bank",
+      "service_name": "HDFC NetBanking",
+      "registrable_domain": "hdfcbank.com",
+      "official_domains": [
+        "hdfcbank.com",
+        "hdfc.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "netbanking.hdfcbank.com",
+        "www.hdfcbank.com"
+      ],
+      "official_aliases": [],
+      "category": "Banking",
+      "verification_source": "RBI Scheduled Commercial Bank Directory",
+      "verification_date": "2026-01-05",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Premier private sector bank in India"
+    },
+    {
+      "id": "td-icici-bank",
+      "brand_name": "ICICI Bank",
+      "service_name": "ICICI NetBanking",
+      "registrable_domain": "icicibank.com",
+      "official_domains": [
+        "icicibank.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "infinity.icicibank.com",
+        "www.icicibank.com"
+      ],
+      "official_aliases": [],
+      "category": "Banking",
+      "verification_source": "RBI Official Bank Directory",
+      "verification_date": "2026-01-05",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Leading Indian commercial bank"
+    },
+    {
+      "id": "td-axis-bank",
+      "brand_name": "Axis Bank",
+      "service_name": "Axis Bank Online",
+      "registrable_domain": "axisbank.com",
+      "official_domains": [
+        "axisbank.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "omni.axisbank.com",
+        "www.axisbank.com"
+      ],
+      "official_aliases": [],
+      "category": "Banking",
+      "verification_source": "RBI Official Bank Directory",
+      "verification_date": "2026-01-05",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Indian commercial private banking"
+    },
+    {
+      "id": "td-kotak-bank",
+      "brand_name": "Kotak Mahindra Bank",
+      "service_name": "Kotak Net Banking",
+      "registrable_domain": "kotak.com",
+      "official_domains": [
+        "kotak.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.kotak.com"
+      ],
+      "official_aliases": [],
+      "category": "Banking",
+      "verification_source": "RBI Official Bank Directory",
+      "verification_date": "2026-01-05",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Kotak Mahindra commercial bank"
+    },
+    {
+      "id": "td-indian-banks-group",
+      "brand_name": "Major Indian Banks",
+      "service_name": "National Commercial Banks",
+      "registrable_domain": "pnbindia.in",
+      "official_domains": [
+        "yesbank.in",
+        "bankofbaroda.in",
+        "pnbindia.in",
+        "indianbank.in",
+        "canarabank.com",
+        "idfcfirstbank.com",
+        "federalbank.co.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.yesbank.in",
+        "www.bankofbaroda.in",
+        "netpnb.com",
+        "www.canarabank.com",
+        "www.idfcfirstbank.com"
+      ],
+      "official_aliases": [],
+      "category": "Banking",
+      "verification_source": "Reserve Bank of India Certified List",
+      "verification_date": "2026-01-05",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Verified Indian scheduled banks (PNB, Canara, BoB, Yes, IDFC, Federal)"
+    },
+    {
+      "id": "td-github-dev",
+      "brand_name": "GitHub",
+      "service_name": "GitHub Platform & Pages",
+      "registrable_domain": "github.com",
+      "official_domains": [
+        "github.com",
+        "githubusercontent.com",
+        "github.io"
+      ],
+      "legitimate_subdomain_patterns": [
+        "github.com",
+        "raw.githubusercontent.com",
+        "gist.github.com",
+        "api.github.com"
+      ],
+      "official_aliases": [],
+      "category": "Developer",
+      "verification_source": "Microsoft / GitHub Inc Official Registry",
+      "verification_date": "2026-01-15",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": true,
+      "trusted_score": 0.4,
+      "notes": "Developer repository platform. Hosts user repositories and GitHub Pages (is_hosting_provider=true)."
+    },
+    {
+      "id": "td-developer-tools",
+      "brand_name": "Developer Platforms",
+      "service_name": "GitLab, Bitbucket, Stack Overflow & Registries",
+      "registrable_domain": "stackoverflow.com",
+      "official_domains": [
+        "gitlab.com",
+        "bitbucket.org",
+        "stackoverflow.com",
+        "stackexchange.com",
+        "npmjs.com",
+        "npmjs.org",
+        "pypi.org",
+        "docker.com",
+        "docker.io",
+        "kubernetes.io",
+        "mozilla.org",
+        "w3.org",
+        "developer.mozilla.org"
+      ],
+      "legitimate_subdomain_patterns": [
+        "docs.docker.com",
+        "hub.docker.com",
+        "developer.mozilla.org"
+      ],
+      "official_aliases": [],
+      "category": "Developer",
+      "verification_source": "Open Source & Software Standards Registries",
+      "verification_date": "2026-01-15",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Developer documentation, package registries, and Q&A infrastructure"
+    },
+    {
+      "id": "td-openai-ai",
+      "brand_name": "OpenAI",
+      "service_name": "ChatGPT & OpenAI API",
+      "registrable_domain": "openai.com",
+      "official_domains": [
+        "openai.com",
+        "chatgpt.com",
+        "oaistatic.com",
+        "oaiusercontent.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "chatgpt.com",
+        "chat.openai.com",
+        "platform.openai.com",
+        "api.openai.com"
+      ],
+      "official_aliases": [],
+      "category": "AI",
+      "verification_source": "OpenAI OpCo LLC Corporate DNS",
+      "verification_date": "2026-01-18",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "ChatGPT conversational assistant and AI developer portal"
+    },
+    {
+      "id": "td-anthropic-ai",
+      "brand_name": "Anthropic",
+      "service_name": "Claude AI",
+      "registrable_domain": "anthropic.com",
+      "official_domains": [
+        "anthropic.com",
+        "claude.ai"
+      ],
+      "legitimate_subdomain_patterns": [
+        "claude.ai",
+        "console.anthropic.com"
+      ],
+      "official_aliases": [],
+      "category": "AI",
+      "verification_source": "Anthropic PBC Corporate Registry",
+      "verification_date": "2026-01-18",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Claude AI conversational system"
+    },
+    {
+      "id": "td-ai-platforms",
+      "brand_name": "AI Ecosystem",
+      "service_name": "Perplexity, Hugging Face, Cohere & Stability",
+      "registrable_domain": "perplexity.ai",
+      "official_domains": [
+        "perplexity.ai",
+        "huggingface.co",
+        "cohere.com",
+        "stability.ai"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.perplexity.ai",
+        "huggingface.co"
+      ],
+      "official_aliases": [],
+      "category": "AI",
+      "verification_source": "AI Research Organization Corporate DNS",
+      "verification_date": "2026-01-18",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Verified AI reasoning engines and model repositories"
+    },
+    {
+      "id": "td-aws-cloud",
+      "brand_name": "Amazon Web Services",
+      "service_name": "AWS Cloud Infrastructure",
+      "registrable_domain": "amazonaws.com",
+      "official_domains": [
+        "amazonaws.com",
+        "aws.amazon.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "aws.amazon.com",
+        "console.aws.amazon.com"
+      ],
+      "official_aliases": [],
+      "category": "Cloud",
+      "verification_source": "Amazon Web Services Inc Documentation",
+      "verification_date": "2026-01-15",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": true,
+      "trusted_score": 0.4,
+      "notes": "Public cloud provider (S3 buckets, CloudFront distributions can host user pages)"
+    },
+    {
+      "id": "td-cloud-hosting",
+      "brand_name": "Cloud & Hosting Providers",
+      "service_name": "Cloudflare, DigitalOcean, Vercel, Netlify, Supabase & Heroku",
+      "registrable_domain": "cloudflare.com",
+      "official_domains": [
+        "cloudflare.com",
+        "digitalocean.com",
+        "vercel.com",
+        "vercel.app",
+        "netlify.com",
+        "netlify.app",
+        "heroku.com",
+        "herokuapp.com",
+        "firebaseapp.com",
+        "supabase.com",
+        "supabase.co",
+        "oracle.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.cloudflare.com",
+        "dash.cloudflare.com",
+        "supabase.com"
+      ],
+      "official_aliases": [],
+      "category": "Cloud",
+      "verification_source": "Cloud Provider Official Registries",
+      "verification_date": "2026-01-15",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": true,
+      "trusted_score": 0.4,
+      "notes": "Multi-tenant cloud hosting. User applications require specific path & threat-intel scrutiny."
+    },
+    {
+      "id": "td-productivity-work",
+      "brand_name": "Productivity Suite",
+      "service_name": "Notion, Slack, Zoom, Canva, Figma & Collaboration",
+      "registrable_domain": "notion.so",
+      "official_domains": [
+        "notion.so",
+        "notion.site",
+        "slack.com",
+        "zoom.us",
+        "zoom.com",
+        "canva.com",
+        "figma.com",
+        "trello.com",
+        "asana.com",
+        "monday.com",
+        "dropbox.com",
+        "box.com",
+        "docusign.com",
+        "adobe.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.notion.so",
+        "app.slack.com",
+        "zoom.us",
+        "www.figma.com"
+      ],
+      "official_aliases": [],
+      "category": "Productivity",
+      "verification_source": "Enterprise SaaS Corporate Registries",
+      "verification_date": "2026-01-20",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Leading enterprise collaboration and document platforms"
+    },
+    {
+      "id": "td-education-knowledge",
+      "brand_name": "Education & Research",
+      "service_name": "Wikipedia, Coursera, Khan Academy & Arxiv",
+      "registrable_domain": "wikipedia.org",
+      "official_domains": [
+        "wikipedia.org",
+        "wikimedia.org",
+        "wikisource.org",
+        "coursera.org",
+        "udemy.com",
+        "edx.org",
+        "khanacademy.org",
+        "arxiv.org"
+      ],
+      "legitimate_subdomain_patterns": [
+        "en.wikipedia.org",
+        "www.coursera.org",
+        "arxiv.org"
+      ],
+      "official_aliases": [],
+      "category": "Education",
+      "verification_source": "Wikimedia Foundation & Global Academic Registries",
+      "verification_date": "2026-01-20",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Global educational, encyclopedic, and scholarly research platforms"
+    },
+    {
+      "id": "td-government-official",
+      "brand_name": "Government Portals",
+      "service_name": "National Public Services",
+      "registrable_domain": "india.gov.in",
+      "official_domains": [
+        "gov.in",
+        "nic.in",
+        "india.gov.in",
+        "gov.uk",
+        "usa.gov",
+        "gov"
+      ],
+      "legitimate_subdomain_patterns": [
+        "india.gov.in",
+        "services.india.gov.in",
+        "www.gov.uk",
+        "www.usa.gov"
+      ],
+      "official_aliases": [],
+      "category": "Government",
+      "verification_source": "Official Sovereign Government Domain Registrars",
+      "verification_date": "2026-01-22",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Sovereign government digital service portals validated through PSL rules"
+    },
+    {
+      "id": "td-travel-logistics",
+      "brand_name": "Travel & Logistics",
+      "service_name": "Booking, Airbnb, Uber, FedEx, DHL & UPS",
+      "registrable_domain": "booking.com",
+      "official_domains": [
+        "booking.com",
+        "airbnb.com",
+        "expedia.com",
+        "tripadvisor.com",
+        "uber.com",
+        "ubereats.com",
+        "dhl.com",
+        "fedex.com",
+        "ups.com",
+        "usps.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.booking.com",
+        "www.airbnb.com",
+        "www.uber.com",
+        "www.dhl.com",
+        "www.fedex.com"
+      ],
+      "official_aliases": [],
+      "category": "Travel",
+      "verification_source": "Global Transport & Hospitality Registries",
+      "verification_date": "2026-01-22",
+      "last_checked": "2026-10-02",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Hospitality booking and postal parcel tracking portals"
+    }
+  ]
+}

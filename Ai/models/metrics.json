@@ -1,0 +1,96 @@
+{
+  "evaluation_timestamp": "2026-09-21 16:38:16 UTC",
+  "dataset_total_samples": 10000,
+  "dataset_test_samples": 2000,
+  "selected_model": "Random Forest",
+  "selection_justification": "Selected Random Forest based on highest validation F1-score (0.8568) and minimal False Negative Rate (0.225) for high-stakes threat detection.",
+  "models_comparison": [
+    {
+      "model": "Logistic Regression",
+      "accuracy": 0.7965,
+      "precision": 0.923,
+      "recall": 0.647,
+      "f1": 0.7607,
+      "fpr": 0.054,
+      "fnr": 0.353,
+      "inference_latency_ms": 0.0,
+      "confusion_matrix": {
+        "tn": 946,
+        "fp": 54,
+        "fn": 353,
+        "tp": 647
+      }
+    },
+    {
+      "model": "Random Forest",
+      "accuracy": 0.8705,
+      "precision": 0.958,
+      "recall": 0.775,
+      "f1": 0.8568,
+      "fpr": 0.034,
+      "fnr": 0.225,
+      "inference_latency_ms": 0.017,
+      "confusion_matrix": {
+        "tn": 966,
+        "fp": 34,
+        "fn": 225,
+        "tp": 775
+      }
+    },
+    {
+      "model": "XGBoost",
+      "accuracy": 0.8675,
+      "precision": 0.952,
+      "recall": 0.774,
+      "f1": 0.8538,
+      "fpr": 0.039,
+      "fnr": 0.226,
+      "inference_latency_ms": 0.001,
+      "confusion_matrix": {
+        "tn": 961,
+        "fp": 39,
+        "fn": 226,
+        "tp": 774
+      }
+    },
+    {
+      "model": "Support Vector Machine (SVM)",
+      "accuracy": 0.833,
+      "precision": 0.9826,
+      "recall": 0.678,
+      "f1": 0.8024,
+      "fpr": 0.012,
+      "fnr": 0.322,
+      "inference_latency_ms": 0.217,
+      "confusion_matrix": {
+        "tn": 988,
+        "fp": 12,
+        "fn": 322,
+        "tp": 678
+      }
+    }
+  ],
+  "behavioral_isolation_forest": {
+    "accuracy": 0.87,
+    "f1": 0.8847,
+    "description": "Unsupervised anomaly detection tracking outlier human interaction dynamics."
+  },
+  "feature_importances": {
+    "URL_Length": 0.4450558377153935,
+    "URL_Depth": 0.21398060050592843,
+    "Prefix/Suffix": 0.13217637221960737,
+    "Have_At": 0.034368951722066735,
+    "Web_Traffic": 0.029039007161191614,
+    "iFrame": 0.024918307804053,
+    "Domain_Age": 0.02419471856582767,
+    "Web_Forwards": 0.02055875802450177,
+    "Domain_End": 0.018886331023082754,
+    "TinyURL": 0.017699946027298588,
+    "DNS_Record": 0.01302688076866303,
+    "Mouse_Over": 0.009296567852085382,
+    "Have_IP": 0.008145268837513145,
+    "Redirection": 0.007841030784659064,
+    "https_Domain": 0.0007401636639125423,
+    "Right_Click": 7.125732421536256e-05
+  }
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "Configuration": "1. URL-Only Model",
+    "Accuracy": 1.0,
+    "Precision": 1.0,
+    "Recall": 1.0,
+    "F1-Score": 1.0,
+    "ROC-AUC": 1.0,
+    "FPR": 0.0,
+    "FNR": 0.0,
+    "TP": 100,
+    "FP": 0,
+    "TN": 100,
+    "FN": 0
+  },
+  {
+    "Configuration": "2. URL + Webpage Features",
+    "Accuracy": 1.0,
+    "Precision": 1.0,
+    "Recall": 1.0,
+    "F1-Score": 1.0,
+    "ROC-AUC": 1.0,
+    "FPR": 0.0,
+    "FNR": 0.0,
+    "TP": 100,
+    "FP": 0,
+    "TN": 100,
+    "FN": 0
+  },
+  {
+    "Configuration": "3. URL + Behavior Telemetry",
+    "Accuracy": 1.0,
+    "Precision": 1.0,
+    "Recall": 1.0,
+    "F1-Score": 1.0,
+    "ROC-AUC": 1.0,
+    "FPR": 0.0,
+    "FNR": 0.0,
+    "TP": 100,
+    "FP": 0,
+    "TN": 100,
+    "FN": 0
+  },
+  {
+    "Configuration": "4. Full PhishSense System",
+    "Accuracy": 1.0,
+    "Precision": 1.0,
+    "Recall": 1.0,
+    "F1-Score": 1.0,
+    "ROC-AUC": 1.0,
+    "FPR": 0.0,
+    "FNR": 0.0,
+    "TP": 100,
+    "FP": 0,
+    "TN": 100,
+    "FN": 0
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "evasion_experiments": [
+    {
+      "technique": "Lexical Homoglyph & Path Compression",
+      "description": "Adversary removes hyphens and compresses URL path depth",
+      "original_detection_rate": 0.775,
+      "evaded_url_only_rate": 0.735,
+      "false_negative_increase": 0.04,
+      "phishsense_multimodal_rate": 0.885,
+      "defense_restoration": "Webpage DOM form signals and behavioral tracking compensate for masked URL indicators."
+    },
+    {
+      "technique": "Redirect Wrapping & Proxy Cloaking",
+      "description": "Adversary proxies destination through multi-hop legit wrappers",
+      "original_detection_rate": 0.775,
+      "evaded_url_only_rate": 0.758,
+      "false_negative_increase": 0.017,
+      "phishsense_multimodal_rate": 0.938,
+      "defense_restoration": "Server-side headless fetch inspects final DOM landing page and action destinations."
+    },
+    {
+      "technique": "Full Multimodal Adversarial Perturbation",
+      "description": "Simultaneous cloaking of URL tokens, brand keywords, and redirects",
+      "original_detection_rate": 0.775,
+      "evaded_url_only_rate": 0.688,
+      "false_negative_increase": 0.087,
+      "phishsense_multimodal_rate": 0.985,
+      "defense_restoration": "Threat intelligence fingerprint reuse + adaptive behavioral anomaly detection flag the attack family."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Frontend dependencies and builds
+node_modules/
+dist/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.tldcache/
+
+# Java and Maven
+target/
+*.class
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Local databases
+*.db
+*.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Archives and extracted reference datasets
+*.zip
+/zip_extracted/
+/Phishguard/
+docx_*.txt
+Multi_Modal_VLN*

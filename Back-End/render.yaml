@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: phishguard-backend
+    runtime: java
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/phishguard-backend-1.0.0.jar
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: phishguard-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: phishguard-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: phishguard-db
+          property: password
+      - key: AI_SERVICE_URL
+        value: https://phishguard-ai.onrender.com
+      - key: CORS_ORIGINS
+        value: https://your-app.vercel.app
+      - key: BLOCKCHAIN_DIFFICULTY
+        value: "3"
+      - key: BLOCKCHAIN_NODE_ID
+        value: render-node-1
+      - key: PORT
+        value: "8080"
+
+databases:
+  - name: phishguard-db
+    databaseName: phishguard
+    plan: free
