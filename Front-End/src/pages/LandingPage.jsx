@@ -49,6 +49,7 @@ export default function LandingPage() {
           ) : (
             <button
               onClick={openAuthModal}
+              title="Sign in only if you want to track personal scans"
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
                 padding: '7px 16px', borderRadius: '8px', fontSize: '13px',
@@ -58,7 +59,7 @@ export default function LandingPage() {
               }}
             >
               <LogIn size={14} />
-              Sign In
+              Sign In to Track
             </button>
           )}
         </div>

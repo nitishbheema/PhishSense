@@ -163,6 +163,7 @@ export default function Navbar() {
         ) : (
           <button
             onClick={openAuthModal}
+            title="Sign in only if you want to track personal scans"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -180,7 +181,7 @@ export default function Navbar() {
             }}
           >
             <LogIn size={14} />
-            Sign In
+            Sign In to Track
           </button>
         )}
       </div>

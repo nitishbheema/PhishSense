@@ -1018,7 +1018,7 @@ export default function ScanPage() {
             }}>
               <Shield size={14} />
               <span>
-                Guest mode active.{' '}
+                Open Source Guest Mode.{' '}
                 <button
                   onClick={openAuthModal}
                   style={{
@@ -1028,7 +1028,7 @@ export default function ScanPage() {
                 >
                   Sign in
                 </button>{' '}
-                to retain your scan audit logs and receive security alerts.
+                only if you need to track personal scan logs and security alerts.
               </span>
             </div>
           )}

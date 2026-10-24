@@ -1,34 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { requestOtp, verifyOtp } from '../utils/api'
-import { Shield, Mail, AlertCircle, CheckCircle2, ArrowRight, RefreshCw, X, KeyRound, Check } from 'lucide-react'
+import { loginWithEmail } from '../utils/api'
+import {
+  Shield, Mail, AlertCircle, CheckCircle2, ArrowRight,
+  RefreshCw, X, Sparkles, User, History, BellRing
+} from 'lucide-react'
 
 export default function AuthModal() {
   const { isAuthModalOpen, closeAuthModal, loginWithToken } = useAuth()
 
-  const [mode, setMode] = useState('EMAIL_ENTER') // 'EMAIL_ENTER' | 'OTP_VERIFY'
-  const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState(['', '', '', '', '', ''])
+  const [identifier, setIdentifier] = useState('')
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
-  const [cooldown, setCooldown] = useState(0)
-
-  const otpInputsRef = useRef([])
-
-  useEffect(() => {
-    if (cooldown <= 0) return
-    const timer = setInterval(() => {
-      setCooldown((c) => Math.max(0, c - 1))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [cooldown])
 
   useEffect(() => {
     if (isAuthModalOpen) {
-      setMode('EMAIL_ENTER')
-      setEmail('')
-      setOtp(['', '', '', '', '', ''])
+      setIdentifier('')
       setError('')
       setInfo('')
       setLoading(false)
@@ -37,101 +25,65 @@ export default function AuthModal() {
 
   if (!isAuthModalOpen) return null
 
-  const handleRequestOtp = async (e) => {
+  const handleSignIn = async (e, customIdentifier = null) => {
     if (e) e.preventDefault()
     setError('')
     setInfo('')
 
-    if (!email || !email.includes('@')) {
-      setError('Please provide a valid email address.')
+    const target = (customIdentifier || identifier || '').trim()
+    if (!target) {
+      setError('Please enter a username or email address.')
       return
     }
 
     setLoading(true)
     try {
-      const res = await requestOtp(email.trim().toLowerCase())
-      if (res && res.error) {
-        setError(res.error)
-      } else if (res && res.success) {
-        setInfo(res.message || `Code sent to ${email}`)
-        setMode('OTP_VERIFY')
-        setCooldown(60)
-        setOtp(['', '', '', '', '', ''])
-        setTimeout(() => {
-          if (otpInputsRef.current[0]) otpInputsRef.current[0].focus()
-        }, 150)
-      } else {
-        setError('Failed to send verification code. Please retry.')
-      }
-    } catch (err) {
-      setError(err.message || 'Unable to reach backend server.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleVerifyOtp = async (e) => {
-    if (e) e.preventDefault()
-    const fullOtp = otp.join('')
-    if (fullOtp.length !== 6) {
-      setError('Please enter the full 6-digit code.')
-      return
-    }
-
-    setError('')
-    setLoading(true)
-    try {
-      const res = await verifyOtp(email.trim().toLowerCase(), fullOtp)
-      if (res && res.error) {
-        setError(res.error)
-      } else if (res && res.token && res.user) {
-        setInfo('Authenticated successfully!')
+      const res = await loginWithEmail(target)
+      if (res && res.token && res.user) {
+        setInfo(`Welcome, ${res.user.fullName || res.user.email}! Tracking enabled.`)
         loginWithToken(res.token, res.user)
-        setTimeout(() => closeAuthModal(), 400)
+        setTimeout(() => closeAuthModal(), 500)
+        return
+      }
+
+      if (res && res.error) {
+        // Fallback for offline demo mode if backend is not reachable
+        if (res.error.includes('backend') || res.error.includes('reach server') || res.error.includes('Failed to fetch')) {
+          const fallbackUser = {
+            id: 'local-' + Date.now(),
+            email: target.includes('@') ? target : `${target}@phishsense.local`,
+            fullName: target.includes('@') ? target.split('@')[0] : target,
+            avatarUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${target}`,
+            authProvider: 'LOCAL_DEMO',
+            emailVerified: true,
+          }
+          const mockToken = 'mock-jwt-token-' + Date.now()
+          setInfo(`Demo Mode: Signed in as ${fallbackUser.fullName}. Tracking active!`)
+          loginWithToken(mockToken, fallbackUser)
+          setTimeout(() => closeAuthModal(), 500)
+          return
+        }
+        setError(res.error)
       } else {
-        setError('Invalid or expired code.')
+        setError('Sign in could not be completed. Please try again.')
       }
     } catch (err) {
-      setError(err.message || 'Verification failed. Please retry.')
+      setError(err.message || 'Unable to connect to server.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleOtpChange = (index, value) => {
-    const clean = value.replace(/\D/g, '')
-    if (clean.length > 1) {
-      const digits = clean.slice(0, 6).split('')
-      const updated = [...otp]
-      digits.forEach((d, i) => {
-        if (index + i < 6) updated[index + i] = d
-      })
-      setOtp(updated)
-      const nextIndex = Math.min(5, index + digits.length)
-      if (otpInputsRef.current[nextIndex]) otpInputsRef.current[nextIndex].focus()
-      return
-    }
-
-    const updated = [...otp]
-    updated[index] = clean
-    setOtp(updated)
-
-    if (clean && index < 5) {
-      otpInputsRef.current[index + 1]?.focus()
-    }
-  }
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpInputsRef.current[index - 1]?.focus()
-    }
+  const handleQuickPreset = (presetEmail) => {
+    setIdentifier(presetEmail)
+    handleSignIn(null, presetEmail)
   }
 
   return (
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(0, 0, 0, 0.75)',
+      background: 'rgba(5, 7, 15, 0.82)',
       backdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
@@ -142,7 +94,7 @@ export default function AuthModal() {
     }}>
       <div style={{
         width: '100%',
-        maxWidth: '430px',
+        maxWidth: '440px',
         background: '#0d111e',
         border: '1px solid #1f2a42',
         borderRadius: '18px',
@@ -150,6 +102,7 @@ export default function AuthModal() {
         overflow: 'hidden',
         position: 'relative',
       }}>
+        {/* Close Button */}
         <button
           type="button"
           onClick={closeAuthModal}
@@ -157,10 +110,12 @@ export default function AuthModal() {
             position: 'absolute', right: '16px', top: '16px',
             background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px',
           }}
+          title="Close"
         >
           <X size={18} />
         </button>
 
+        {/* Header */}
         <div style={{ padding: '28px 24px 20px', textAlign: 'center', borderBottom: '1px solid #162035' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -170,14 +125,15 @@ export default function AuthModal() {
             <Shield size={24} color="#fff" />
           </div>
           <h3 style={{ margin: '0 0 6px', color: '#f8fafc', fontSize: '19px', fontWeight: 700 }}>
-            Sign In with Email OTP
+            Track Your Scans
           </h3>
-          <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px' }}>
-            Enter your email to receive a 6-digit login code
+          <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px', lineHeight: 1.5 }}>
+            PhishSense is free and open-source. Sign in only if you want to track personal scan history and alerts.
           </p>
         </div>
 
-        <div style={{ padding: '22px 24px 28px' }}>
+        {/* Body */}
+        <div style={{ padding: '22px 24px 26px' }}>
           {error && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: '8px',
@@ -202,125 +158,120 @@ export default function AuthModal() {
             </div>
           )}
 
-          {mode === 'EMAIL_ENTER' && (
-            <form onSubmit={handleRequestOtp}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px' }}>
-                  Email address
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <Mail size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '14px' }} />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    style={{
-                      width: '100%',
-                      padding: '11px 12px 11px 38px',
-                      background: '#131b2e',
-                      border: '1px solid #283754',
-                      borderRadius: '8px',
-                      color: '#f8fafc',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '11px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                  border: 'none',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {loading ? <RefreshCw size={16} className="animate-spin" /> : <span>Send OTP</span>}
-              </button>
-            </form>
-          )}
-
-          {mode === 'OTP_VERIFY' && (
-            <form onSubmit={handleVerifyOtp}>
-              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <KeyRound size={22} color="#818cf8" style={{ marginBottom: '6px' }} />
-                <p style={{ margin: 0, color: '#94a3b8', fontSize: '12.5px' }}>
-                  Enter code sent to <span style={{ color: '#818cf8' }}>{email}</span>
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', marginBottom: '18px' }}>
-                {otp.map((d, i) => (
-                  <input
-                    key={i}
-                    ref={(el) => (otpInputsRef.current[i] = el)}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={d}
-                    onChange={(e) => handleOtpChange(i, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(i, e)}
-                    style={{
-                      width: '42px', height: '48px', textAlign: 'center', fontSize: '20px',
-                      fontWeight: 700, background: '#131b2e', border: d ? '2px solid #6366f1' : '1px solid #283754',
-                      borderRadius: '8px', color: '#f8fafc', outline: 'none',
-                    }}
-                  />
-                ))}
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '11px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  border: 'none',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {loading ? <RefreshCw size={16} className="animate-spin" /> : <span>Verify & Sign In</span>}
-              </button>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', fontSize: '12px' }}>
-                <button
-                  type="button"
-                  onClick={() => setMode('EMAIL_ENTER')}
-                  style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
-                >
-                  ← Back
-                </button>
-                <button
-                  type="button"
-                  disabled={cooldown > 0 || loading}
-                  onClick={handleRequestOtp}
+          <form onSubmit={handleSignIn}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px' }}>
+                Email or Username
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Mail size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '14px' }} />
+                <input
+                  type="text"
+                  required
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="e.g. analyst@phishsense.io or your name"
                   style={{
-                    background: 'transparent', border: 'none',
-                    color: cooldown > 0 ? '#475569' : '#818cf8', cursor: cooldown > 0 ? 'default' : 'pointer',
+                    width: '100%',
+                    padding: '11px 12px 11px 38px',
+                    background: '#131b2e',
+                    border: '1px solid #283754',
+                    borderRadius: '8px',
+                    color: '#f8fafc',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
                   }}
-                >
-                  {cooldown > 0 ? `Resend (${cooldown}s)` : 'Resend'}
-                </button>
+                />
               </div>
-            </form>
-          )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '11px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                border: 'none',
+                color: '#fff',
+                fontSize: '14px',
+                fontWeight: 600,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 14px rgba(99, 102, 241, 0.3)',
+              }}
+            >
+              {loading ? (
+                <RefreshCw size={16} className="animate-spin" />
+              ) : (
+                <>
+                  <span>Sign In & Start Tracking</span>
+                  <ArrowRight size={15} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Quick 1-Click Preset Profiles */}
+          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #162035' }}>
+            <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Instant 1-Click Profiles:
+            </span>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => handleQuickPreset('analyst@phishsense.io')}
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  background: '#131b2e', border: '1px solid #222f49',
+                  borderRadius: '6px', padding: '7px 10px',
+                  color: '#94a3b8', fontSize: '12px', cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <Sparkles size={13} color="#818cf8" />
+                <span>Security Analyst</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickPreset('researcher@phishsense.io')}
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  background: '#131b2e', border: '1px solid #222f49',
+                  borderRadius: '6px', padding: '7px 10px',
+                  color: '#94a3b8', fontSize: '12px', cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <User size={13} color="#38bdf8" />
+                <span>Researcher</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Guest Mode option */}
+          <div style={{ marginTop: '16px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={closeAuthModal}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#64748b',
+                fontSize: '12px',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              Continue in Guest Mode (No tracking)
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ timeout /t 3 /nobreak >nul
 
 :: ── 2. Spring Boot Backend ────────────────────────────────────────────────────
 echo [2/3] Starting Spring Boot Backend on port 8080...
-start "PhishSense Backend" cmd /k "cd /d D:\MAJOR\Back-End && mvn spring-boot:run"
+start "PhishSense Backend" cmd /k "cd /d D:\MAJOR\Back-End && call run_backend.bat"
 timeout /t 3 /nobreak >nul
 
 :: ── 3. React Frontend ─────────────────────────────────────────────────────────

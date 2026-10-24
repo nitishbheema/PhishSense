@@ -258,11 +258,18 @@ public class AuthService {
      * Direct email login / sign-in (instant email login without OTP barrier).
      */
     @Transactional
-    public Map<String, Object> loginWithEmail(String email, String ipAddress, String userAgent) {
-        if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
-            throw new IllegalArgumentException("Please enter a valid email address.");
+    public Map<String, Object> loginWithEmail(String identifier, String ipAddress, String userAgent) {
+        if (identifier == null || identifier.trim().isEmpty()) {
+            throw new IllegalArgumentException("Please enter a username or email address.");
         }
-        String cleanEmail = email.trim().toLowerCase();
+        String raw = identifier.trim().toLowerCase();
+        final String cleanEmail = raw.contains("@")
+                ? raw
+                : raw.replaceAll("[^a-z0-9._-]", "") + "@phishsense.local";
+
+        if (!EMAIL_PATTERN.matcher(cleanEmail).matches()) {
+            throw new IllegalArgumentException("Please enter a valid username or email address.");
+        }
 
         User user = userRepository.findByEmail(cleanEmail).orElseGet(() -> {
             String defaultName = cleanEmail.contains("@") ? cleanEmail.substring(0, cleanEmail.indexOf("@")) : "User";
@@ -273,7 +280,7 @@ public class AuthService {
                     .email(cleanEmail)
                     .fullName(capitalized)
                     .avatarUrl("https://api.dicebear.com/7.x/identicon/svg?seed=" + cleanEmail)
-                    .authProvider("EMAIL")
+                    .authProvider("DIRECT")
                     .emailVerified(true)
                     .createdAt(LocalDateTime.now())
                     .build();
