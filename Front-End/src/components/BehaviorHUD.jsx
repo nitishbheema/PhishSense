@@ -13,7 +13,7 @@ export default function BehaviorHUD({ snapshot, position = 'bottom-right' }) {
 
   const s = snapshot
   const score = s.anomalyScore || 0
-  const scoreColor = score >= 70 ? '#dc2626' : score >= 40 ? '#f59e0b' : '#10b981'
+  const scoreColor = score >= 70 ? '#e11d48' : score >= 40 ? '#d97706' : '#059669'
   const scoreLabel = score >= 70 ? 'High Risk' : score >= 40 ? 'Suspicious' : 'Normal'
 
   const posStyle = {
@@ -22,119 +22,109 @@ export default function BehaviorHUD({ snapshot, position = 'bottom-right' }) {
     'top-right': { top: '80px', right: '20px' },
   }[position] || { bottom: '20px', right: '20px' }
 
-  const avgTypingDelay = s.typingDelays.length
+  const avgTypingDelay = s.typingDelays?.length
     ? Math.round(s.typingDelays.reduce((a, b) => a + b, 0) / s.typingDelays.length)
     : 0
 
-  const avgMouseSpeed = s.mouseSpeed.length
+  const avgMouseSpeed = s.mouseSpeed?.length
     ? (s.mouseSpeed.reduce((a, b) => a + b, 0) / s.mouseSpeed.length).toFixed(2)
     : 0
 
   return (
-    <div style={{
-      position: 'fixed', ...posStyle, zIndex: 9000,
-      background: '#0f0f1a', border: '1px solid #1a1a2e',
-      borderRadius: '12px', width: '240px',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-      fontFamily: 'DM Sans, sans-serif', overflow: 'hidden',
-    }}>
-
+    <div
+      style={{
+        position: 'fixed', ...posStyle, zIndex: 9000,
+      }}
+      className="human-card w-64 bg-white border border-slate-200 shadow-lg text-slate-900 overflow-hidden"
+    >
       {/* Header */}
       <div
         onClick={() => setCollapsed(!collapsed)}
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '10px 12px', cursor: 'pointer',
-          borderBottom: collapsed ? 'none' : '1px solid #1a1a2e',
-          background: '#111120',
-        }}
+        className="flex items-center justify-between p-2.5 cursor-pointer bg-slate-50 border-b border-slate-200 hover:bg-slate-100 transition"
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-          <Activity size={13} color="#818cf8" />
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#818cf8' }}>
-            PhishGuard Tracker
+        <div className="flex items-center gap-1.5">
+          <Activity className="w-3.5 h-3.5 text-slate-700" />
+          <span className="text-xs font-semibold text-slate-900">
+            Biometrics Telemetry
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{
-            fontSize: '11px', fontWeight: 700, color: scoreColor,
-            background: scoreColor + '18', borderRadius: '4px', padding: '2px 6px',
-          }}>
-            {score}
+        <div className="flex items-center gap-1.5">
+          <span
+            className="text-[11px] font-semibold font-mono px-1.5 py-0.2 rounded"
+            style={{
+              color: scoreColor,
+              backgroundColor: `${scoreColor}15`,
+            }}
+          >
+            {score}%
           </span>
-          {collapsed ? <ChevronDown size={12} color="#555" /> : <ChevronUp size={12} color="#555" />}
+          {collapsed ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400" />}
         </div>
       </div>
 
       {!collapsed && (
-        <div style={{ padding: '10px 12px' }}>
-
+        <div className="p-3 space-y-2.5 text-xs">
           {/* Anomaly Score Bar */}
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-              <span style={{ fontSize: '11px', color: '#555' }}>Anomaly Score</span>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: scoreColor }}>{scoreLabel}</span>
+          <div>
+            <div className="flex justify-between items-center mb-1 text-[11px]">
+              <span className="text-slate-500">Anomaly Index</span>
+              <span className="font-semibold font-mono" style={{ color: scoreColor }}>{scoreLabel}</span>
             </div>
-            <div style={{ height: '5px', background: '#1a1a2e', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{
-                width: `${score}%`, height: '100%',
-                background: scoreColor, borderRadius: '3px',
-                transition: 'width 0.4s ease',
-              }} />
+            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{ width: `${score}%`, backgroundColor: scoreColor }}
+              />
             </div>
           </div>
 
           {/* Metrics grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+          <div className="grid grid-cols-2 gap-1.5">
             {[
-              { label: 'Mouse pts', value: s.mousePath.length },
-              { label: 'Clicks', value: s.clicks.length },
-              { label: 'Keystrokes', value: s.keystrokes.length },
-              { label: 'Avg delay', value: avgTypingDelay ? `${avgTypingDelay}ms` : '—' },
-              { label: 'Mouse spd', value: avgMouseSpeed ? `${avgMouseSpeed}` : '—' },
-              { label: 'Pastes', value: s.pasteCount, alert: s.pasteCount > 0 },
-              { label: 'Rapid clicks', value: s.rapidClicks, alert: s.rapidClicks > 3 },
-              { label: 'Scroll depth', value: `${s.scrollDepth.toFixed(0)}%` },
+              { label: 'Mouse Points', value: s.mousePath?.length || 0 },
+              { label: 'Total Clicks', value: s.clicks?.length || 0 },
+              { label: 'Keystrokes', value: s.keystrokes?.length || 0 },
+              { label: 'Typing Delay', value: avgTypingDelay ? `${avgTypingDelay}ms` : '—' },
+              { label: 'Mouse Speed', value: avgMouseSpeed ? `${avgMouseSpeed}` : '—' },
+              { label: 'Pastes', value: s.pasteCount || 0, alert: (s.pasteCount || 0) > 0 },
+              { label: 'Rapid Clicks', value: s.rapidClicks || 0, alert: (s.rapidClicks || 0) > 3 },
+              { label: 'Scroll Depth', value: `${(s.scrollDepth || 0).toFixed(0)}%` },
             ].map(({ label, value, alert }) => (
-              <div key={label} style={{
-                background: alert ? '#1a0a0a' : '#0a0a12',
-                border: `1px solid ${alert ? '#3a1010' : '#111120'}`,
-                borderRadius: '6px', padding: '6px 8px',
-              }}>
-                <div style={{ fontSize: '10px', color: '#444' }}>{label}</div>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: alert ? '#dc2626' : '#e8e8f0', marginTop: '1px' }}>
-                  {value}
-                </div>
+              <div
+                key={label}
+                className={`p-1.5 rounded-md border ${
+                  alert
+                    ? 'bg-rose-50 border-rose-200 text-rose-700'
+                    : 'bg-slate-50 border-slate-200 text-slate-800'
+                }`}
+              >
+                <div className="text-[10px] text-slate-400">{label}</div>
+                <div className="text-xs font-mono font-semibold mt-0.5">{value}</div>
               </div>
             ))}
           </div>
 
           {/* Flags */}
-          {s.flags && s.flags.length > 0 && (
-            <div>
-              <div style={{ fontSize: '10px', color: '#555', marginBottom: '5px', fontWeight: 600 }}>
-                FLAGS DETECTED
-              </div>
+          {s.flags && s.flags.length > 0 ? (
+            <div className="space-y-1 pt-0.5">
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
+                Detected Flags:
+              </span>
               {s.flags.slice(0, 3).map((flag, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: '5px',
-                  marginBottom: '3px', fontSize: '10px', color: '#f87171', lineHeight: 1.4,
-                }}>
-                  <AlertTriangle size={9} style={{ marginTop: '2px', flexShrink: 0 }} />
-                  {flag}
+                <div key={i} className="flex items-start gap-1 text-[11px] text-rose-700">
+                  <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0 mt-0.5" />
+                  <span className="leading-tight">{flag}</span>
                 </div>
               ))}
             </div>
-          )}
-
-          {s.flags && s.flags.length === 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#10b981' }}>
-              <Shield size={11} />
-              No anomalies detected yet
+          ) : (
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 pt-0.5">
+              <Shield className="w-3 h-3" />
+              <span>Normal human interaction cadence</span>
             </div>
           )}
 
-          <div style={{ marginTop: '8px', fontSize: '10px', color: '#333', textAlign: 'right' }}>
+          <div className="text-[10px] font-mono text-slate-400 text-right pt-1 border-t border-slate-100">
             Session: {s.sessionId?.slice(0, 8)}...
           </div>
         </div>

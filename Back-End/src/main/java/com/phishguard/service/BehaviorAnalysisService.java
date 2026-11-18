@@ -602,14 +602,22 @@ public class BehaviorAnalysisService {
 
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("phishing_count", sessionRepo.countPhishing());
-        stats.put("suspicious_count", sessionRepo.countSuspicious());
-        stats.put("legit_count", sessionRepo.countLegit());
-        stats.put("total_sessions", sessionRepo.count());
+        long threatCount = threatRepo.count();
+        long sessionCount = sessionRepo.count();
+
+        long phishingCount = threatRepo.countPhishingThreats() + sessionRepo.countPhishing();
+        long suspiciousCount = threatRepo.countSuspiciousThreats() + sessionRepo.countSuspicious();
+        long legitCount = threatRepo.countLegitThreats() + sessionRepo.countLegit();
+
+        stats.put("phishing_count", phishingCount);
+        stats.put("suspicious_count", suspiciousCount);
+        stats.put("legit_count", legitCount);
+        stats.put("total_sessions", sessionCount + threatCount);
+        stats.put("total_scans", threatCount);
         stats.put("blockchain_length", phishChain.getChainLength());
         stats.put("chain_valid", phishChain.isChainValid());
-        stats.put("avg_phishing_confidence", sessionRepo.avgPhishingConfidence());
-        stats.put("total_threats", threatRepo.count());
+        stats.put("avg_phishing_confidence", sessionCount > 0 ? sessionRepo.avgPhishingConfidence() : 0.0);
+        stats.put("total_threats", threatCount);
         stats.put("qr_scan_count", threatRepo.countByInputType("QR"));
         stats.put("website_scan_count", threatRepo.countByInputType("WEBSITE"));
         stats.put("url_scan_count", threatRepo.countByInputType("URL"));

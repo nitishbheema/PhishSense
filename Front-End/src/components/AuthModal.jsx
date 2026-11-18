@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { loginWithEmail } from '../utils/api'
 import {
   Shield, Mail, AlertCircle, CheckCircle2, ArrowRight,
-  RefreshCw, X, Sparkles, User, History, BellRing
+  RefreshCw, X, User, ShieldCheck
 } from 'lucide-react'
 
 export default function AuthModal() {
@@ -32,7 +32,7 @@ export default function AuthModal() {
 
     const target = (customIdentifier || identifier || '').trim()
     if (!target) {
-      setError('Please enter a username or email address.')
+      setError('Please enter your name or email address.')
       return
     }
 
@@ -40,14 +40,14 @@ export default function AuthModal() {
     try {
       const res = await loginWithEmail(target)
       if (res && res.token && res.user) {
-        setInfo(`Welcome, ${res.user.fullName || res.user.email}! Tracking enabled.`)
+        setInfo(`Welcome, ${res.user.fullName || res.user.email}. Personalized tracking enabled.`)
         loginWithToken(res.token, res.user)
         setTimeout(() => closeAuthModal(), 500)
         return
       }
 
       if (res && res.error) {
-        // Fallback for offline demo mode if backend is not reachable
+        // Fallback for offline demo mode
         if (res.error.includes('backend') || res.error.includes('reach server') || res.error.includes('Failed to fetch')) {
           const fallbackUser = {
             id: 'local-' + Date.now(),
@@ -58,7 +58,7 @@ export default function AuthModal() {
             emailVerified: true,
           }
           const mockToken = 'mock-jwt-token-' + Date.now()
-          setInfo(`Demo Mode: Signed in as ${fallbackUser.fullName}. Tracking active!`)
+          setInfo(`Demo Mode: Signed in as ${fallbackUser.fullName}. Tracking active.`)
           loginWithToken(mockToken, fallbackUser)
           setTimeout(() => closeAuthModal(), 500)
           return
@@ -80,108 +80,62 @@ export default function AuthModal() {
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(5, 7, 15, 0.82)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '16px',
-      zIndex: 9999,
-      fontFamily: 'DM Sans, sans-serif',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '440px',
-        background: '#0d111e',
-        border: '1px solid #1f2a42',
-        borderRadius: '18px',
-        boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(99,102,241,0.15)',
-        overflow: 'hidden',
-        position: 'relative',
-      }}>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-150">
+      <div className="human-card w-full max-w-sm bg-white p-6 shadow-xl relative border border-slate-200">
+        
         {/* Close Button */}
         <button
           type="button"
           onClick={closeAuthModal}
-          style={{
-            position: 'absolute', right: '16px', top: '16px',
-            background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px',
-          }}
-          title="Close"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 p-1 rounded-md transition cursor-pointer"
+          title="Close dialog"
         >
-          <X size={18} />
+          <X className="w-4 h-4" />
         </button>
 
         {/* Header */}
-        <div style={{ padding: '28px 24px 20px', textAlign: 'center', borderBottom: '1px solid #162035' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: '46px', height: '46px', borderRadius: '12px',
-            background: 'linear-gradient(135deg, #6366f1, #3b82f6)', marginBottom: '12px',
-          }}>
-            <Shield size={24} color="#fff" />
+        <div className="text-center pb-4 border-b border-slate-100">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-2.5 text-slate-800">
+            <ShieldCheck className="w-5 h-5" />
           </div>
-          <h3 style={{ margin: '0 0 6px', color: '#f8fafc', fontSize: '19px', fontWeight: 700 }}>
-            Track Your Scans
+          <h3 className="text-base font-semibold text-slate-900 mb-1">
+            Sign In to PhishSense
           </h3>
-          <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px', lineHeight: 1.5 }}>
-            PhishSense is free and open-source. Sign in only if you want to track personal scan history and alerts.
+          <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">
+            Save personal scan history, organize flagged traps, and track security alerts.
           </p>
         </div>
 
         {/* Body */}
-        <div style={{ padding: '22px 24px 26px' }}>
+        <div className="pt-4 space-y-3.5">
           {error && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px', padding: '10px 12px', marginBottom: '16px',
-              color: '#fca5a5', fontSize: '12.5px',
-            }}>
-              <AlertCircle size={15} style={{ flexShrink: 0 }} />
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {info && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '8px', padding: '10px 12px', marginBottom: '16px',
-              color: '#34d399', fontSize: '12.5px',
-            }}>
-              <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{info}</span>
             </div>
           )}
 
-          <form onSubmit={handleSignIn}>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px' }}>
+          <form onSubmit={handleSignIn} className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Email or Username
               </label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '14px' }} />
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="e.g. analyst@phishsense.io or your name"
-                  style={{
-                    width: '100%',
-                    padding: '11px 12px 11px 38px',
-                    background: '#131b2e',
-                    border: '1px solid #283754',
-                    borderRadius: '8px',
-                    color: '#f8fafc',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  placeholder="e.g. analyst@phishsense.io"
+                  className="clean-input w-full pl-9 pr-3 py-2 text-xs"
                 />
               </div>
             </div>
@@ -189,90 +143,58 @@ export default function AuthModal() {
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: '100%',
-                padding: '11px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                border: 'none',
-                color: '#fff',
-                fontSize: '14px',
-                fontWeight: 600,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 14px rgba(99, 102, 241, 0.3)',
-              }}
+              className="btn-primary w-full py-2 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {loading ? (
-                <RefreshCw size={16} className="animate-spin" />
+                <RefreshCw className="w-4 h-4 animate-spin" />
               ) : (
                 <>
-                  <span>Sign In & Start Tracking</span>
-                  <ArrowRight size={15} />
+                  <span>Sign In & Continue</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Quick 1-Click Preset Profiles */}
-          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #162035' }}>
-            <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Instant 1-Click Profiles:
+          {/* Quick Demo Profiles */}
+          <div className="pt-3 border-t border-slate-100">
+            <span className="block text-[11px] font-medium text-slate-500 mb-2">
+              Instant 1-Click Demo Profiles:
             </span>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickPreset('analyst@phishsense.io')}
                 disabled={loading}
-                style={{
-                  flex: 1,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                  background: '#131b2e', border: '1px solid #222f49',
-                  borderRadius: '6px', padding: '7px 10px',
-                  color: '#94a3b8', fontSize: '12px', cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
+                className="btn-secondary py-1.5 px-2 text-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Sparkles size={13} color="#818cf8" />
-                <span>Security Analyst</span>
+                <Shield className="w-3.5 h-3.5 text-slate-600" />
+                <span>Analyst</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickPreset('researcher@phishsense.io')}
                 disabled={loading}
-                style={{
-                  flex: 1,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                  background: '#131b2e', border: '1px solid #222f49',
-                  borderRadius: '6px', padding: '7px 10px',
-                  color: '#94a3b8', fontSize: '12px', cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
+                className="btn-secondary py-1.5 px-2 text-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <User size={13} color="#38bdf8" />
+                <User className="w-3.5 h-3.5 text-slate-600" />
                 <span>Researcher</span>
               </button>
             </div>
           </div>
 
           {/* Guest Mode option */}
-          <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <div className="text-center pt-1">
             <button
               type="button"
               onClick={closeAuthModal}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#64748b',
-                fontSize: '12px',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-              }}
+              className="text-xs text-slate-500 hover:text-slate-800 underline transition cursor-pointer"
             >
-              Continue in Guest Mode (No tracking)
+              Continue as Guest (No account needed)
             </button>
           </div>
         </div>
+
       </div>
     </div>
   )

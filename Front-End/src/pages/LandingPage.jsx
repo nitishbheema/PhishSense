@@ -1,205 +1,364 @@
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Shield, Brain, Link2, ChevronRight, Activity, Lock, Globe, QrCode, ScanLine, LogIn, User as UserIcon } from 'lucide-react'
+import {
+  Shield, Brain, Link2, ChevronRight, Activity, Lock, Globe,
+  QrCode, ScanLine, LogIn, User as UserIcon, CheckCircle2,
+  AlertTriangle, ArrowRight, ShieldCheck, Zap, HelpCircle
+} from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { getDashboardStats } from '../utils/api'
 
 export default function LandingPage() {
   const { isAuthenticated, user, openAuthModal, openProfileModal } = useAuth()
+  const [stats, setStats] = useState(null)
+
+  useEffect(() => {
+    let mounted = true
+    getDashboardStats().then(data => {
+      if (mounted && data) {
+        setStats(data)
+      }
+    }).catch(() => {})
+    return () => { mounted = false }
+  }, [])
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f' }}>
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900">
+      
+      {/* Top Banner */}
+      <div className="bg-slate-100 border-b border-slate-200 px-4 py-2 text-center text-xs text-slate-600 flex items-center justify-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+        <span>PhishSense 3.5 is live: Multi-modal QR inspection and blockchain threat ledger.</span>
+        <Link to="/scan" className="font-semibold text-slate-900 hover:underline ml-1">
+          Open Scanner &rarr;
+        </Link>
+      </div>
 
-      {/* Nav */}
-      <nav style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '1.2rem 3rem', borderBottom: '1px solid #1a1a2e',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Shield size={22} color="#6366f1" />
-          <span style={{ fontWeight: 700, fontSize: '16px', letterSpacing: '-0.4px' }}>PhishSense</span>
-          <span style={{
-            fontSize: '10px', background: '#1e1e3a', color: '#818cf8',
-            border: '1px solid #2a2a50', borderRadius: '4px',
-            padding: '2px 7px', fontWeight: 500,
-          }}>v3.5</span>
+      {/* Navigation */}
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-sm">
+            <Shield className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-base text-slate-900">PhishSense</span>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                v3.5
+              </span>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link to="/scan" style={{
-            padding: '8px 18px', borderRadius: '8px', fontSize: '13px',
-            border: '1px solid #2a2a3e', color: '#aaa', textDecoration: 'none',
-          }}>Threat Scanner</Link>
-          <Link to="/dashboard" style={{
-            padding: '8px 18px', borderRadius: '8px', fontSize: '13px',
-            background: '#1e1e3a', border: '1px solid #2a2a50', color: '#818cf8', textDecoration: 'none',
-            fontWeight: 500,
-          }}>Dashboard →</Link>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            to="/scan"
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+          >
+            <ScanLine className="w-4 h-4 text-slate-500" />
+            <span>Threat Scanner</span>
+          </Link>
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+          >
+            <Activity className="w-4 h-4 text-slate-500" />
+            <span>Dashboard</span>
+          </Link>
 
           {isAuthenticated ? (
             <button
               onClick={openProfileModal}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '7px 14px', borderRadius: '8px', fontSize: '13px',
-                background: '#141829', border: '1px solid #28334e', color: '#e2e8f0',
-                cursor: 'pointer', fontWeight: 500,
-              }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-slate-200 text-slate-800 hover:bg-slate-50 transition"
             >
-              <UserIcon size={14} color="#818cf8" />
-              {user?.fullName || user?.email?.split('@')[0] || 'My Account'}
+              <UserIcon className="w-4 h-4 text-slate-600" />
+              <span>{user?.fullName || user?.email?.split('@')[0] || 'My Account'}</span>
             </button>
           ) : (
             <button
               onClick={openAuthModal}
-              title="Sign in only if you want to track personal scans"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '7px 16px', borderRadius: '8px', fontSize: '13px',
-                background: 'linear-gradient(135deg, #6366f1, #4f46e5)', border: 'none',
-                color: '#fff', cursor: 'pointer', fontWeight: 600,
-                boxShadow: '0 2px 10px rgba(99,102,241,0.3)',
-              }}
+              className="btn-primary flex items-center gap-2 px-4 py-1.5 text-sm font-medium cursor-pointer"
             >
-              <LogIn size={14} />
-              Sign In to Track
+              <LogIn className="w-4 h-4" />
+              <span>Sign In</span>
             </button>
           )}
         </div>
       </nav>
 
-      {/* Hero */}
-      <section style={{
-        textAlign: 'center', padding: '6rem 2rem 4rem',
-        maxWidth: '800px', margin: '0 auto',
-      }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          background: '#1a1a2e', border: '1px solid #2a2a40',
-          borderRadius: '999px', padding: '6px 14px', marginBottom: '2rem',
-          fontSize: '12px', color: '#818cf8',
-        }}>
-          <Activity size={12} />
-          URL · QR Code · Website Analysis · Blockchain Threat Intelligence
+      {/* Hero Section */}
+      <section className="pt-16 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
+        
+        {/* Category Pill */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-medium mb-6 shadow-sm">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Real-time Phishing, QR Code & Domain Impersonation Defense</span>
         </div>
 
-        <h1 style={{
-          fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
-          fontWeight: 700, lineHeight: 1.15,
-          letterSpacing: '-1.5px', marginBottom: '1.2rem',
-          background: 'linear-gradient(135deg, #e8e8f0 0%, #818cf8 60%, #6366f1 100%)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>
-          Unified Digital Threat<br />Detection Platform
+        {/* Main Headline */}
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-950 leading-tight mb-5">
+          Detect deceptive links before <br className="hidden sm:inline" />
+          they compromise your personal data.
         </h1>
 
-        <p style={{
-          fontSize: '17px', color: '#666', lineHeight: 1.7,
-          maxWidth: '560px', margin: '0 auto 2.5rem',
-        }}>
-          PhishSense detects phishing across URLs, QR codes, and websites.
-          Behavioral fingerprinting, AI analysis, and blockchain threat intelligence
-          — in one platform.
+        <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
+          PhishSense analyzes cloaked redirects, typosquatting domains, and credential traps in under a second. 
+          Clear explanations without confusing technical jargon.
         </p>
 
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/scan" style={{
-            padding: '12px 28px', borderRadius: '10px',
-            background: '#6366f1', color: '#fff', textDecoration: 'none',
-            fontWeight: 600, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px',
-          }}>
-            Scan a Threat <ChevronRight size={16} />
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
+          <Link
+            to="/scan"
+            className="btn-primary w-full sm:w-auto px-6 py-2.5 text-sm font-semibold flex items-center justify-center gap-2 text-decoration-none shadow-sm"
+          >
+            <ScanLine className="w-4 h-4" />
+            <span>Launch Free Threat Scanner</span>
+            <ChevronRight className="w-4 h-4" />
           </Link>
-          <Link to="/phishing-demo" style={{
-            padding: '12px 28px', borderRadius: '10px',
-            border: '1px solid #2a2a3e', color: '#aaa', textDecoration: 'none',
-            fontSize: '15px',
-          }}>
-            View Phishing Demo
+          <Link
+            to="/phishing-demo"
+            className="btn-secondary w-full sm:w-auto px-5 py-2.5 text-sm font-medium flex items-center justify-center gap-2 text-decoration-none"
+          >
+            <span>Interactive Phishing Lab</span>
+            <ArrowRight className="w-4 h-4 text-slate-400" />
           </Link>
+        </div>
+
+        {/* Trust Signals */}
+        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 border-t border-slate-200 pt-6">
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-slate-700" />
+            <span>No Account Required to Scan</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Lock className="w-3.5 h-3.5 text-slate-700" />
+            <span>Privacy Guard: URLs Never Stored Publicly</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-slate-700" />
+            <span>Sub-Second Response Time</span>
+          </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section style={{
-        display: 'flex', justifyContent: 'center', gap: '2rem',
-        padding: '2rem', flexWrap: 'wrap',
-      }}>
-        {[
-          { label: 'Threats Detected',   value: '12,847' },
-          { label: 'Accuracy Rate',       value: '97.3%'  },
-          { label: 'Blocked Today',       value: '284'    },
-          { label: 'QR Threats Caught',   value: '189'    },
-        ].map(({ label, value }) => (
-          <div key={label} style={{
-            background: '#0f0f1a', border: '1px solid #1a1a2e',
-            borderRadius: '12px', padding: '1.5rem 2.5rem', textAlign: 'center',
-          }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#818cf8', letterSpacing: '-1px' }}>{value}</div>
-            <div style={{ fontSize: '13px', color: '#555', marginTop: '4px' }}>{label}</div>
+      {/* Visual Example Card */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <div className="human-card p-6 bg-white border border-slate-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+            <div>
+              <div className="flex items-center gap-1.5 text-rose-600 text-xs font-semibold mb-1">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Example Threat Analysis</span>
+              </div>
+              <h3 className="text-base font-semibold text-slate-900">How PhishSense breaks down deceptive links</h3>
+            </div>
+            <span className="text-xs font-mono font-medium px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200 self-start sm:self-auto">
+              Risk Score: 96 / 100 • Critical
+            </span>
           </div>
-        ))}
+
+          <div className="mt-5 space-y-4">
+            {/* Target URL */}
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs flex flex-wrap items-center gap-1.5 text-slate-700">
+              <span className="text-slate-400">https://</span>
+              <span className="bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-medium border border-rose-200">paypa1-account-security</span>
+              <span className="text-slate-400">.xyz/</span>
+              <span className="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">verify?redirect=stealth</span>
+            </div>
+
+            {/* Explanation items */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div className="p-3 rounded-lg bg-white border border-slate-200 text-left">
+                <span className="text-xs font-semibold text-slate-900 block mb-1">1. Typo-Squatting</span>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Replaced letter 'l' with numeral '1' to mimic authentic PayPal domain.
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-white border border-slate-200 text-left">
+                <span className="text-xs font-semibold text-slate-900 block mb-1">2. High-Risk TLD</span>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Disposable top-level domain registered 48 hours ago without WHOIS records.
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-white border border-slate-200 text-left">
+                <span className="text-xs font-semibold text-slate-900 block mb-1">3. Hidden Redirection</span>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Script silently relays entered passwords to an unverified secondary receiver.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Features */}
-      <section style={{
-        maxWidth: '1000px', margin: '3rem auto',
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '16px', padding: '0 2rem',
-      }}>
-        {[
-          {
-            icon: ScanLine, title: 'URL Threat Analysis',
-            desc: 'Extracts 16 URL features and runs them through a trained Random Forest model to detect phishing URLs.',
-            color: '#818cf8',
-          },
-          {
-            icon: QrCode, title: 'QR Code Scanner',
-            desc: 'Decode QR codes via camera or upload. Destination URL is analyzed before you visit — preventing blind redirects to malicious sites.',
-            color: '#f472b6',
-          },
-          {
-            icon: Globe, title: 'Website Signal Analysis',
-            desc: 'Deep analysis of webpage DOM, forms, scripts, iframes, and redirects to detect impersonation and phishing structure.',
-            color: '#fb923c',
-          },
-          {
-            icon: Brain, title: 'AI Behavioral Analysis',
-            desc: 'Random Forest and XGBoost models analyze mouse movements, typing rhythm, and click patterns to detect interaction anomalies.',
-            color: '#34d399',
-          },
-          {
-            icon: Link2, title: 'Blockchain Threat Ledger',
-            desc: 'Detected threat fingerprints are stored in a tamper-proof PoW blockchain. Previous threats are reused to improve future detections.',
-            color: '#60a5fa',
-          },
-          {
-            icon: Lock, title: 'AI/Deception Risk Scoring',
-            desc: 'Estimates synthetic/deceptive content likelihood based on measurable signals — brand impersonation, JS patterns, and structural anomalies.',
-            color: '#c084fc',
-          },
-        ].map(({ icon: Icon, title, desc, color }) => (
-          <div key={title} style={{
-            background: '#0f0f1a', border: '1px solid #1a1a2e',
-            borderRadius: '12px', padding: '1.5rem',
-          }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              background: color + '15', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', marginBottom: '1rem',
-            }}>
-              <Icon size={20} color={color} />
+      {/* Real Database Statistics */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            {
+              label: 'Links Scanned',
+              value: stats ? (stats.total_scans ?? stats.total_threats ?? stats.url_scan_count ?? 0).toLocaleString() : '0',
+              desc: 'Live database records'
+            },
+            {
+              label: 'Phishing Traps',
+              value: stats ? (stats.phishing_count ?? 0).toLocaleString() : '0',
+              desc: 'Confirmed malicious traps'
+            },
+            {
+              label: 'QR Codes Scanned',
+              value: stats ? (stats.qr_scan_count ?? 0).toLocaleString() : '0',
+              desc: 'QR payloads inspected'
+            },
+            {
+              label: 'Verified Safe',
+              value: stats ? (stats.legit_count ?? 0).toLocaleString() : '0',
+              desc: 'Clean domains confirmed'
+            },
+          ].map(({ label, value, desc }) => (
+            <div key={label} className="human-card p-5 text-left bg-white border-slate-200">
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-1">
+                {value}
+              </div>
+              <div className="text-xs font-medium text-slate-800">{label}</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">{desc}</div>
             </div>
-            <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '8px', color: '#e8e8f0' }}>{title}</h3>
-            <p style={{ fontSize: '13px', color: '#555', lineHeight: 1.6, margin: 0 }}>{desc}</p>
+          ))}
+        </div>
+      </section>
+
+      {/* Feature Capabilities */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            Multi-Layer Protection Capabilities
+          </h2>
+          <p className="text-slate-500 text-sm max-w-md mx-auto">
+            Comprehensive verification designed for everyday browsing safety.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            {
+              icon: ScanLine,
+              title: 'URL Dissection',
+              desc: 'Inspects 16 linguistic and structural indicators (entropy, hyphens, token abuse) without relying only on outdated blacklists.',
+            },
+            {
+              icon: QrCode,
+              title: 'QR Code Decoding',
+              desc: 'Safely inspect QR destinations from photos or camera before your phone or browser visits the link.',
+            },
+            {
+              icon: Globe,
+              title: 'Webpage Emulation',
+              desc: 'Scans for hidden iframes, password input traps, external CDN script hijacking, and fake brand logos.',
+            },
+            {
+              icon: Brain,
+              title: 'Behavioral ML',
+              desc: 'Machine learning models analyze interaction patterns to detect anomaly signatures during credential input.',
+            },
+            {
+              icon: Link2,
+              title: 'Tamper-Proof Ledger',
+              desc: 'Every confirmed scam signature is hashed on an immutable blockchain ledger to permanently alert future users.',
+            },
+            {
+              icon: Lock,
+              title: 'Clear Action Advice',
+              desc: 'Verdicts are written in plain language with specific guidance on whether the site is safe to use.',
+            },
+          ].map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="human-card p-5 flex flex-col justify-between bg-white border-slate-200">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 mb-3">
+                  <Icon className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-1.5">
+                  {title}
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Safety Guidelines */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <div className="human-card p-6 bg-white border-slate-200">
+          <div className="flex items-center gap-2 mb-4">
+            <HelpCircle className="w-4 h-4 text-slate-700" />
+            <h3 className="text-sm font-semibold text-slate-900">Basic Safety Rules Before Clicking Any Link</h3>
           </div>
-        ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="flex items-start gap-2.5">
+              <span className="font-semibold text-slate-900">01.</span>
+              <p className="text-slate-600">
+                <strong>Always verify the domain root:</strong> <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">paypal.com.scam-host.net</code> is hosted on <code>scam-host.net</code>, not PayPal.
+              </p>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="font-semibold text-slate-900">02.</span>
+              <p className="text-slate-600">
+                <strong>Beware artificial urgency:</strong> Messages threatening immediate account suspension are almost always phishing traps.
+              </p>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="font-semibold text-slate-900">03.</span>
+              <p className="text-slate-600">
+                <strong>Inspect physical QR stickers:</strong> Verify that parking meter or restaurant payment QR codes haven't been pasted over with fake stickers.
+              </p>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="font-semibold text-slate-900">04.</span>
+              <p className="text-slate-600">
+                <strong>Scan with PhishSense:</strong> When uncertain, paste the address here first before opening it on your personal device.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center">
+        <div className="human-card p-8 bg-slate-900 text-white border-none shadow-md">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+            Ready to inspect a suspicious link or QR code?
+          </h2>
+          <p className="text-slate-300 text-xs sm:text-sm max-w-md mx-auto mb-6">
+            Instant machine learning analysis, brand verification, and plain-language threat verdicts.
+          </p>
+          <Link
+            to="/scan"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-white text-slate-950 font-semibold text-sm hover:bg-slate-100 transition shadow-sm text-decoration-none"
+          >
+            <ScanLine className="w-4 h-4" />
+            <span>Open Threat Scanner</span>
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer style={{
-        textAlign: 'center', padding: '2rem',
-        borderTop: '1px solid #1a1a2e', color: '#444', fontSize: '13px', marginTop: '2rem',
-      }}>
-        PhishSense v3.0 — Unified AI & Behavioral Phishing Detection · Final Year Research Project
+      <footer className="border-t border-slate-200 py-6 px-4 text-center text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-slate-700" />
+            <span className="font-medium text-slate-700">PhishSense v3.5</span>
+            <span>— Intelligent Phishing Detection Platform</span>
+          </div>
+          <p className="text-slate-400">
+            Final Year Research Project • Clean White UI
+          </p>
+        </div>
       </footer>
+
     </div>
   )
 }

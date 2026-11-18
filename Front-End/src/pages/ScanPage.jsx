@@ -4,7 +4,7 @@ import {
   XCircle, Link2, Activity, ChevronRight, Upload, Camera, Loader2,
   Info, Eye, Lock, Cpu, Database, TrendingUp, ThumbsUp, ThumbsDown,
   ExternalLink, ArrowLeft, Layers, Check, X, ShieldAlert, CornerDownRight,
-  Fingerprint, Copy, ShieldCheck
+  Fingerprint, Copy, ShieldCheck, RefreshCw, AlertCircle
 } from 'lucide-react'
 import jsQR from 'jsqr'
 import { useBehaviorTracker } from '../hooks/useBehaviorTracker'
@@ -13,17 +13,69 @@ import { useAuth } from '../context/AuthContext'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TABS = [
-  { key: 'url',     label: 'Scan URL',         icon: ScanLine, desc: 'Analyze any URL for domain impersonation and phishing patterns' },
-  { key: 'qr',      label: 'Scan QR Code',      icon: QrCode,   desc: 'Safely decode QR code destination and analyze payload before navigation' },
-  { key: 'website', label: 'Analyze Website',   icon: Globe,    desc: 'Deep inspection of DOM structure, forms, external scripts, and iframes' },
+  { key: 'url',     label: 'Scan URL',         icon: ScanLine },
+  { key: 'qr',      label: 'Decode QR Code',   icon: QrCode },
+  { key: 'website', label: 'Analyze Website',  icon: Globe },
+]
+
+const PRESET_SAMPLES = [
+  { label: 'Fake Bank Login', url: 'https://security-chase-verification.net/auth', tag: 'Phishing' },
+  { label: 'Manipulated Brand', url: 'https://paypa1-account-restore.xyz/login', tag: 'Typo' },
+  { label: 'Clean Site', url: 'https://github.com', tag: 'Safe' },
+  { label: 'Shortened Redirect', url: 'https://bit.ly/secure-cloud-access', tag: 'Redirect' },
 ]
 
 const RISK_CONFIG = {
-  PHISHING:    { color: '#f87171', bg: '#2d0a0a', border: '#5a1515', label: 'PHISHING',                 badgeBg: '#451010' },
-  SUSPICIOUS:  { color: '#fbbf24', bg: '#2a1f00', border: '#5a4a00', label: 'SUSPICIOUS',               badgeBg: '#3d2e00' },
-  UNVERIFIED:  { color: '#f59e0b', bg: '#2a1700', border: '#603305', label: 'SUSPICIOUS (UNVERIFIED)',  badgeBg: '#451d02' },
-  LEGITIMATE:  { color: '#4ade80', bg: '#0a2d16', border: '#1a5a30', label: 'LEGITIMATE',               badgeBg: '#0e3a1d' },
-  LEGIT:       { color: '#4ade80', bg: '#0a2d16', border: '#1a5a30', label: 'LEGITIMATE',               badgeBg: '#0e3a1d' },
+  PHISHING: {
+    color: '#e11d48',
+    bg: '#fff1f2',
+    border: '#fecdd3',
+    label: 'Phishing Detected',
+    badgeBg: '#ffe4e6',
+    badgeText: '#be123c',
+    summary: 'High danger. This destination mimics authentic services to steal credentials or personal data.',
+    actionAdvice: 'Do not click or submit any personal information. Close this page immediately.',
+  },
+  SUSPICIOUS: {
+    color: '#d97706',
+    bg: '#fffbeb',
+    border: '#fde68a',
+    label: 'Suspicious Link',
+    badgeBg: '#fef3c7',
+    badgeText: '#b45309',
+    summary: 'Anomalous structural patterns detected (fresh domain, redirect cloaking, or unverified host).',
+    actionAdvice: 'Exercise caution. Avoid entering passwords or authorizing payments on this website.',
+  },
+  UNVERIFIED: {
+    color: '#d97706',
+    bg: '#fffbeb',
+    border: '#fde68a',
+    label: 'Suspicious (Unverified)',
+    badgeBg: '#fef3c7',
+    badgeText: '#b45309',
+    summary: 'Target domain does not resolve or failed to respond. Unreachable sites are not granted a safe pass.',
+    actionAdvice: 'Verify the link directly with the authentic sender before proceeding.',
+  },
+  LEGITIMATE: {
+    color: '#059669',
+    bg: '#f0fdf4',
+    border: '#bbf7d0',
+    label: 'Clean & Verified',
+    badgeBg: '#dcfce7',
+    badgeText: '#047857',
+    summary: 'Recognized legitimate domain structure with clean threat database records.',
+    actionAdvice: 'Safe to proceed. Standard browsing safety applies.',
+  },
+  LEGIT: {
+    color: '#059669',
+    bg: '#f0fdf4',
+    border: '#bbf7d0',
+    label: 'Clean & Verified',
+    badgeBg: '#dcfce7',
+    badgeText: '#047857',
+    summary: 'Recognized legitimate domain structure with clean threat database records.',
+    actionAdvice: 'Safe to proceed. Standard browsing safety applies.',
+  },
 }
 
 function getRiskConfig(label, internalState) {
@@ -36,18 +88,18 @@ function getRiskConfig(label, internalState) {
 
 function RiskBar({ value, color, label }) {
   const pct = Math.min(100, Math.max(0, value))
-  const c = value > 65 ? '#f87171' : value > 35 ? '#fbbf24' : '#4ade80'
+  const c = value > 65 ? '#e11d48' : value > 35 ? '#d97706' : '#059669'
   return (
-    <div style={{ marginBottom: '12px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-        <span style={{ fontSize: '12px', color: '#888' }}>{label}</span>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: color || c }}>{value}%</span>
+    <div className="mb-3">
+      <div className="flex justify-between items-center text-xs mb-1">
+        <span className="text-slate-600 font-medium">{label}</span>
+        <span className="font-semibold font-mono" style={{ color: color || c }}>{value}%</span>
       </div>
-      <div style={{ height: '6px', background: '#1a1a2e', borderRadius: '3px', overflow: 'hidden' }}>
-        <div style={{
-          width: `${pct}%`, height: '100%', borderRadius: '3px',
-          background: color || c, transition: 'width 0.6s ease',
-        }} />
+      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+        <div
+          className="h-full rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${pct}%`, background: color || c }}
+        />
       </div>
     </div>
   )
@@ -58,32 +110,34 @@ function ScoreRing({ score, label, internalState }) {
   const circumference = 2 * Math.PI * 45
   const strokeDashoffset = circumference - (score / 100) * circumference
   return (
-    <div style={{ textAlign: 'center' }}>
-      <div style={{ position: 'relative', display: 'inline-block', width: 120, height: 120 }}>
-        <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx="60" cy="60" r="45" fill="none" stroke="#1a1a2e" strokeWidth="10" />
+    <div className="flex flex-col items-center justify-center p-2">
+      <div className="relative inline-block w-24 h-24">
+        <svg width="96" height="96" className="-rotate-90">
+          <circle cx="48" cy="48" r="40" fill="none" stroke="#f1f5f9" strokeWidth="7" />
           <circle
-            cx="60" cy="60" r="45" fill="none"
-            stroke={cfg.color} strokeWidth="10"
+            cx="48" cy="48" r="40" fill="none"
+            stroke={cfg.color} strokeWidth="7"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
-            style={{ transition: 'stroke-dashoffset 1s ease' }}
+            className="transition-all duration-700 ease-out"
           />
         </svg>
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '22px', fontWeight: 700, color: cfg.color }}>{score}</div>
-          <div style={{ fontSize: '9px', color: '#666', fontWeight: 500 }}>RISK</div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span className="text-2xl font-bold font-mono tracking-tight" style={{ color: cfg.color }}>
+            {score}
+          </span>
+          <span className="text-[10px] text-slate-400 font-medium uppercase">
+            Risk Index
+          </span>
         </div>
       </div>
-      <div style={{
-        marginTop: '8px', fontSize: '12px', fontWeight: 700,
-        color: cfg.color, letterSpacing: '0.5px',
-      }}>{cfg.label}</div>
+      <div
+        className="mt-2 text-xs font-semibold px-2.5 py-0.5 rounded-full border"
+        style={{ color: cfg.badgeText, borderColor: cfg.border, backgroundColor: cfg.badgeBg }}
+      >
+        {cfg.label}
+      </div>
     </div>
   )
 }
@@ -189,81 +243,77 @@ function QrScanner({ onDecoded }) {
   }
 
   return (
-    <div>
+    <div className="space-y-4">
       {!mode && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem' }}>
-          <button onClick={startCamera} style={{
-            background: '#111120', border: '1px solid #1a1a2e', borderRadius: '10px',
-            padding: '1.5rem', cursor: 'pointer', color: '#e8e8f0', textAlign: 'center',
-          }}>
-            <Camera size={28} color="#818cf8" style={{ margin: '0 auto 10px', display: 'block' }} />
-            <div style={{ fontSize: '13px', fontWeight: 600 }}>Use Camera</div>
-            <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Real-time scanner</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            onClick={startCamera}
+            className="human-card p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-slate-400 bg-white"
+          >
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center mb-3 text-slate-700">
+              <Camera className="w-5 h-5" />
+            </div>
+            <div className="text-sm font-semibold text-slate-900">Scan with Camera</div>
+            <div className="text-xs text-slate-500 mt-1">Real-time optical scanner</div>
           </button>
-          <label style={{
-            background: '#111120', border: '1px solid #1a1a2e', borderRadius: '10px',
-            padding: '1.5rem', cursor: 'pointer', color: '#e8e8f0', textAlign: 'center', display: 'block',
-          }}>
-            <Upload size={28} color="#818cf8" style={{ margin: '0 auto 10px', display: 'block' }} />
-            <div style={{ fontSize: '13px', fontWeight: 600 }}>Upload Image</div>
-            <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>PNG, JPG, WEBP</div>
-            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+
+          <label className="human-card p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-slate-400 bg-white">
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center mb-3 text-slate-700">
+              <Upload className="w-5 h-5" />
+            </div>
+            <div className="text-sm font-semibold text-slate-900">Upload QR Image</div>
+            <div className="text-xs text-slate-500 mt-1">PNG, JPG, or screenshot</div>
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
           </label>
         </div>
       )}
 
       {mode === 'camera' && (
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', background: '#000' }}>
-            <video ref={videoRef} style={{ width: '100%', display: 'block', maxHeight: '240px', objectFit: 'cover' }} muted playsInline />
-            <canvas ref={canvasRef} style={{ display: 'none' }} />
+        <div className="space-y-3">
+          <div className="relative rounded-xl overflow-hidden bg-black border border-slate-200 max-h-64 flex items-center justify-center">
+            <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+            <canvas ref={canvasRef} className="hidden" />
             {scanning && (
-              <div style={{
-                position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-                border: '2px solid #818cf8', borderRadius: '8px', width: '160px', height: '160px', pointerEvents: 'none',
-              }} />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-40 h-40 border-2 border-white rounded-xl" />
+              </div>
             )}
           </div>
-          <button onClick={() => { stopCamera(); setMode(null) }} style={{
-            marginTop: '8px', width: '100%', padding: '8px', background: 'transparent',
-            border: '1px solid #333', borderRadius: '8px', color: '#888', cursor: 'pointer', fontSize: '13px',
-          }}>
+          <button
+            onClick={() => { stopCamera(); setMode(null) }}
+            className="btn-secondary w-full py-2 text-xs font-medium cursor-pointer"
+          >
             Cancel Camera
           </button>
         </div>
       )}
 
       {error && (
-        <div style={{
-          background: '#2d0a0a', border: '1px solid #5a1515', borderRadius: '8px',
-          padding: '10px 14px', marginBottom: '1rem', display: 'flex', alignItems: 'center',
-          gap: '8px', fontSize: '12px', color: '#f87171',
-        }}>
-          <AlertTriangle size={14} /> {error}
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
       {decoded && (
-        <div style={{
-          background: '#0a1a0f', border: '1px solid #1a3a25', borderRadius: '8px',
-          padding: '12px 14px', marginBottom: '1rem',
-        }}>
-          <div style={{ fontSize: '11px', color: '#4ade80', fontWeight: 600, marginBottom: '4px' }}>
-            ✓ QR CODE DECODED SAFELY
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+          <div className="flex items-center gap-2 text-emerald-700 font-semibold text-[11px]">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>QR Destination Decoded Safely</span>
           </div>
-          <div style={{ fontSize: '12px', color: '#e8e8f0', fontFamily: 'DM Mono, monospace', wordBreak: 'break-all' }}>
+          <div className="font-mono text-slate-800 break-all bg-white p-2.5 rounded-lg border border-slate-200">
             {decoded}
           </div>
-          <div style={{ fontSize: '10px', color: '#666', marginTop: '6px' }}>
-            Running deep multi-input threat inspection on destination...
-          </div>
+          <p className="text-[11px] text-slate-500">
+            Running multi-layer threat analysis before navigating...
+          </p>
         </div>
       )}
     </div>
   )
 }
 
-// ── Safe Preview Component (Section 23) ───────────────────────────────────────
+// ── Safe Preview Modal ────────────────────────────────────────────────────────
 function SafePreviewModal({ url, onClose, onProceed }) {
   let parsedUrl = { protocol: '', host: '', pathname: '', search: '' }
   try {
@@ -274,67 +324,62 @@ function SafePreviewModal({ url, onClose, onProceed }) {
   }
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', zIndex: 1000, padding: '1rem',
-    }}>
-      <div style={{
-        background: '#0f0f1a', border: '1px solid #3a1515', borderRadius: '16px',
-        maxWidth: '560px', width: '100%', padding: '2rem', boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-          <div style={{ width: 40, height: 40, borderRadius: '10px', background: '#2d0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <AlertTriangle size={22} color="#f87171" />
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-150">
+      <div className="human-card w-full max-w-lg bg-white p-6 shadow-xl relative border border-slate-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600 shrink-0">
+            <AlertTriangle className="w-5 h-5" />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '16px', color: '#f87171', fontWeight: 700 }}>
-              Safe Preview Mode
+            <h3 className="text-base font-semibold text-slate-900 m-0">
+              Safe Preview Sandbox
             </h3>
-            <span style={{ fontSize: '11px', color: '#888' }}>Automatic navigation halted for your protection</span>
+            <span className="text-xs text-slate-500">Automatic navigation halted for your protection</span>
           </div>
         </div>
 
-        <p style={{ fontSize: '13px', color: '#bbb', lineHeight: 1.6, marginBottom: '1.2rem' }}>
-          PhishSense detected significant threat indicators on this target. Inspect the dissected destination elements below before making any decision:
+        <p className="text-xs text-slate-600 leading-relaxed mb-4">
+          Significant threat indicators detected on this target. Inspect the dissected destination elements below:
         </p>
 
         {/* Dissected URL components */}
-        <div style={{ background: '#0a0a12', border: '1px solid #1a1a2e', borderRadius: '10px', padding: '12px', marginBottom: '1.5rem', fontFamily: 'DM Mono, monospace', fontSize: '11px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #141424' }}>
-            <span style={{ color: '#666' }}>Protocol:</span>
-            <span style={{ color: parsedUrl.protocol.includes('https') ? '#4ade80' : '#f87171' }}>{parsedUrl.protocol}</span>
+        <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs space-y-2 mb-5 text-slate-700">
+          <div className="flex justify-between border-b border-slate-200 pb-1.5">
+            <span className="text-slate-500">Protocol:</span>
+            <span className={parsedUrl.protocol.includes('https') ? 'text-emerald-700 font-semibold' : 'text-rose-600 font-semibold'}>
+              {parsedUrl.protocol}
+            </span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #141424' }}>
-            <span style={{ color: '#666' }}>Target Host:</span>
-            <span style={{ color: '#f87171', fontWeight: 700 }}>{parsedUrl.host}</span>
+          <div className="flex justify-between border-b border-slate-200 pb-1.5">
+            <span className="text-slate-500">Target Host:</span>
+            <span className="text-slate-900 font-bold">{parsedUrl.host}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #141424' }}>
-            <span style={{ color: '#666' }}>Path Route:</span>
-            <span style={{ color: '#aaa' }}>{parsedUrl.pathname || '/'}</span>
+          <div className="flex justify-between border-b border-slate-200 pb-1.5">
+            <span className="text-slate-500">Path Route:</span>
+            <span className="text-slate-700">{parsedUrl.pathname || '/'}</span>
           </div>
           {parsedUrl.search && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ color: '#666' }}>Parameters:</span>
-              <span style={{ color: '#fbbf24', wordBreak: 'break-all', maxWidth: '320px' }}>{parsedUrl.search}</span>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Parameters:</span>
+              <span className="text-amber-700 break-all max-w-[260px]">{parsedUrl.search}</span>
             </div>
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={{
-            flex: 1, padding: '11px', borderRadius: '8px', background: '#6366f1',
-            color: '#fff', border: 'none', fontWeight: 600, fontSize: '13px', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-          }}>
-            <ArrowLeft size={14} /> Go Back to Safety
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onClose}
+            className="btn-primary flex-1 py-2 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Go Back to Safety</span>
           </button>
-          <button onClick={onProceed} style={{
-            padding: '11px 16px', borderRadius: '8px', background: 'transparent',
-            border: '1px solid #5a1515', color: '#f87171', fontSize: '12px', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: '6px',
-          }}>
-            <ExternalLink size={13} /> Proceed at Own Risk
+          <button
+            onClick={onProceed}
+            className="btn-secondary px-4 py-2 text-xs font-medium flex items-center gap-1.5 cursor-pointer text-slate-600"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Proceed (Risk)</span>
           </button>
         </div>
       </div>
@@ -342,7 +387,7 @@ function SafePreviewModal({ url, onClose, onProceed }) {
   )
 }
 
-// ── Feedback Modal (Section 20) ───────────────────────────────────────────────
+// ── Feedback Modal ────────────────────────────────────────────────────────────
 function FeedbackModal({ scanResult, onClose }) {
   const [feedback, setFeedback] = useState('CORRECT')
   const [suggested, setSuggested] = useState(scanResult.label)
@@ -366,92 +411,82 @@ function FeedbackModal({ scanResult, onClose }) {
   }
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', zIndex: 1000, padding: '1rem',
-    }}>
-      <div style={{
-        background: '#0f0f1a', border: '1px solid #1a1a2e', borderRadius: '16px',
-        maxWidth: '480px', width: '100%', padding: '2rem',
-      }}>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-150">
+      <div className="human-card w-full max-w-md bg-white p-6 shadow-xl relative border border-slate-200">
         {done ? (
-          <div style={{ textAlign: 'center', padding: '1rem' }}>
-            <CheckCircle2 size={40} color="#4ade80" style={{ margin: '0 auto 12px', display: 'block' }} />
-            <h3 style={{ color: '#e8e8f0', margin: '0 0 6px' }}>Feedback Logged</h3>
-            <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>
-              Your feedback has been queued for human verification and model curation.
+          <div className="text-center py-6">
+            <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
+            <h3 className="text-base font-semibold text-slate-900 mb-1">Feedback Submitted</h3>
+            <p className="text-xs text-slate-500">
+              Thank you. Verified feedback enters the curation pipeline for retraining.
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <h3 style={{ fontSize: '16px', color: '#e8e8f0', margin: '0 0 8px', fontWeight: 700 }}>
-              Detection Feedback Loop
-            </h3>
-            <p style={{ fontSize: '12px', color: '#777', margin: '0 0 1.2rem', lineHeight: 1.5 }}>
-              Help improve PhishSense. Verified feedback enters the research curation dataset for model retraining.
-            </p>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 mb-1">Detection Feedback</h3>
+              <p className="text-xs text-slate-500">
+                Was this verdict accurate? Contributed feedback is reviewed for dataset refinement.
+              </p>
+            </div>
 
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '1.2rem' }}>
+            <div className="grid grid-cols-2 gap-2">
               {['CORRECT', 'INCORRECT'].map(opt => (
                 <button
-                  key={opt} type="button" onClick={() => setFeedback(opt)}
-                  style={{
-                    flex: 1, padding: '10px', borderRadius: '8px', cursor: 'pointer',
-                    fontSize: '13px', fontWeight: 600, border: '1px solid #1a1a2e',
-                    background: feedback === opt ? (opt === 'CORRECT' ? '#0a2d16' : '#2d0a0a') : '#0a0a12',
-                    color: feedback === opt ? (opt === 'CORRECT' ? '#4ade80' : '#f87171') : '#666',
-                  }}>
-                  {opt === 'CORRECT' ? '✓ Correct Detection' : '✗ Incorrect Prediction'}
+                  key={opt}
+                  type="button"
+                  onClick={() => setFeedback(opt)}
+                  className={`p-2 rounded-lg border text-xs font-medium cursor-pointer transition ${
+                    feedback === opt
+                      ? 'bg-slate-900 text-white border-slate-900'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {opt === 'CORRECT' ? 'Accurate Verdict' : 'Incorrect Prediction'}
                 </button>
               ))}
             </div>
 
             {feedback === 'INCORRECT' && (
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>
-                  What is the true classification?
-                </label>
+              <div>
+                <label className="block text-xs text-slate-700 mb-1 font-medium">True Classification</label>
                 <select
-                  value={suggested} onChange={e => setSuggested(e.target.value)}
-                  style={{
-                    width: '100%', padding: '9px 12px', borderRadius: '8px', background: '#0a0a12',
-                    border: '1px solid #1a1a2e', color: '#e8e8f0', fontSize: '13px',
-                  }}>
-                  <option value="LEGIT">Legitimate</option>
+                  value={suggested}
+                  onChange={e => setSuggested(e.target.value)}
+                  className="w-full p-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs focus:outline-none"
+                >
+                  <option value="LEGIT">Legitimate (Clean)</option>
                   <option value="SUSPICIOUS">Suspicious</option>
-                  <option value="PHISHING">Phishing / Malicious</option>
+                  <option value="PHISHING">Phishing / Malicious Scam</option>
                 </select>
               </div>
             )}
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>
-                Comments / Context (Optional)
-              </label>
+            <div>
+              <label className="block text-xs text-slate-700 mb-1 font-medium">Context Notes (Optional)</label>
               <textarea
-                value={comments} onChange={e => setComments(e.target.value)}
-                placeholder="e.g. Legitimate internal university portal or brand sub-domain"
+                value={comments}
+                onChange={e => setComments(e.target.value)}
+                placeholder="e.g. Authentic university subdomain or internal portal"
                 rows={3}
-                style={{
-                  width: '100%', padding: '10px', borderRadius: '8px', background: '#0a0a12',
-                  border: '1px solid #1a1a2e', color: '#e8e8f0', fontSize: '13px', boxSizing: 'border-box',
-                }}
+                className="w-full p-2.5 rounded-lg bg-white border border-slate-300 text-slate-800 placeholder:text-slate-400 text-xs focus:outline-none"
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button type="button" onClick={onClose} style={{
-                flex: 1, padding: '10px', borderRadius: '8px', background: 'transparent',
-                border: '1px solid #333', color: '#888', cursor: 'pointer', fontSize: '13px',
-              }}>
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn-secondary flex-1 py-2 text-xs font-medium cursor-pointer"
+              >
                 Cancel
               </button>
-              <button type="submit" disabled={submitting} style={{
-                flex: 1, padding: '10px', borderRadius: '8px', background: '#6366f1',
-                color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer', fontSize: '13px',
-              }}>
-                {submitting ? 'Submitting...' : 'Submit Feedback'}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-primary flex-1 py-2 text-xs font-medium cursor-pointer disabled:opacity-60"
+              >
+                {submitting ? 'Submitting...' : 'Submit'}
               </button>
             </div>
           </form>
@@ -465,6 +500,7 @@ function FeedbackModal({ scanResult, onClose }) {
 function ResultPanel({ result, inputType, onOpenPreview }) {
   const [showFeedback, setShowFeedback] = useState(false)
   const [copiedFp, setCopiedFp] = useState(false)
+  const [copiedDomain, setCopiedDomain] = useState(false)
 
   const verdictLabel = result.verdict || result.label || 'LEGITIMATE'
   const cfg = getRiskConfig(verdictLabel, result.internal_state)
@@ -473,271 +509,239 @@ function ResultPanel({ result, inputType, onOpenPreview }) {
   const tim = result.threat_intelligence_match || null
   const redirectInfo = result.redirect_info || null
   const fingerprint = result.threat_fingerprint || intel.fingerprint || ''
-  const sim = result.similarity_analysis || {}
   const evidenceList = result.evidence && result.evidence.length > 0 ? result.evidence : (result.explainability || [])
   const isInsufficientEvidence = result.internal_state === 'INSUFFICIENT_EVIDENCE'
   const isKnownThreat = tim && tim.is_known_threat
   const tda = result.trusted_domain_analysis || null
 
   return (
-    <div style={{ marginTop: '1.5rem', animation: 'fadeIn 0.4s ease' }}>
+    <div className="mt-6 space-y-4 animate-in fade-in duration-200">
       {showFeedback && (
         <FeedbackModal scanResult={result} onClose={() => setShowFeedback(false)} />
       )}
 
-      {/* ── 1. KNOWN THREAT INTELLIGENCE BANNER ── */}
+      {/* ── 1. KNOWN THREAT BANNER ── */}
       {isKnownThreat && (
-        <div style={{
-          background: 'rgba(239, 68, 68, 0.15)',
-          border: '1px solid #ef4444',
-          borderRadius: '12px',
-          padding: '14px 18px',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <ShieldAlert size={26} color="#f87171" style={{ flexShrink: 0 }} />
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-3">
+            <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5 sm:mt-0" />
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#f87171', letterSpacing: '0.3px' }}>
-                KNOWN THREAT INTELLIGENCE MATCH: {String(tim.source || 'GLOBAL_DATABASE').toUpperCase()}
+              <div className="text-sm font-semibold text-rose-900">
+                CONFIRMED THREAT SIGNATURE: {String(tim.source || 'GLOBAL_DATABASE').toUpperCase()}
               </div>
-              <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '3px' }}>
-                Target positively identified in verified threat feeds as <strong>{tim.threat_type || 'Malicious Phishing Portal'}</strong>. Immediate block advised.
+              <div className="text-xs text-rose-700 mt-0.5">
+                Target identified in verified feeds as <strong>{tim.threat_type || 'Phishing Scam'}</strong>.
               </div>
             </div>
           </div>
-          <span style={{
-            fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '6px',
-            background: '#451010', color: '#fca5a5', border: '1px solid #7f1d1d'
-          }}>
-            MATCH CONFIDENCE: 99.9%
+          <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 font-mono shrink-0">
+            99.9% Confidence
           </span>
         </div>
       )}
 
-      {/* ── 2. INSUFFICIENT EVIDENCE / UNVERIFIED BANNER ── */}
+      {/* ── 2. INSUFFICIENT EVIDENCE BANNER ── */}
       {isInsufficientEvidence && (
-        <div style={{
-          background: 'rgba(245, 158, 11, 0.12)',
-          border: '1px solid #f59e0b',
-          borderRadius: '12px',
-          padding: '14px 18px',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-        }}>
-          <AlertTriangle size={26} color="#f59e0b" style={{ flexShrink: 0 }} />
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: '#f59e0b' }}>
-              INSUFFICIENT EVIDENCE / UNRESOLVED HOST
+            <div className="text-sm font-semibold text-amber-900">
+              Unresolved Destination / Incomplete DNS
             </div>
-            <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '3px' }}>
-              Target domain does not resolve in DNS or host failed to respond. Under PhishSense safety doctrine, unreachable destinations are never safe-washed as legitimate without verified proof.
+            <div className="text-xs text-amber-700 mt-0.5">
+              Domain does not resolve or host failed to respond. Unreachable sites are not passed as legitimate without verified proof.
             </div>
           </div>
         </div>
       )}
 
-      {/* ── 3. MAIN SCORE & VERDICT HEADER ── */}
-      <div style={{
-        background: cfg.bg, border: `1px solid ${cfg.border}`,
-        borderRadius: '12px', padding: '1.5rem', marginBottom: '1rem',
-        display: 'grid', gridTemplateColumns: '120px 1fr', gap: '1.5rem', alignItems: 'center',
-      }}>
-        <ScoreRing score={result.risk_score ?? result.threat_score ?? 0} label={verdictLabel} internalState={result.internal_state} />
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
-            <span style={{ fontSize: '11px', background: '#111120', border: '1px solid #1a1a2e', borderRadius: '4px', padding: '2px 8px', color: '#818cf8', fontWeight: 600 }}>
-              {result.threat_category || 'General Web Services'}
-            </span>
-            <span style={{ fontSize: '11px', background: '#111120', border: '1px solid #1a1a2e', borderRadius: '4px', padding: '2px 8px', color: '#aaa' }}>
-              {inputType} SCAN
-            </span>
-            <span style={{ fontSize: '11px', background: '#111120', border: '1px solid #1a1a2e', borderRadius: '4px', padding: '2px 8px', color: '#aaa' }}>
-              Confidence: {Math.round((result.confidence || 0.85) * 100)}%
-            </span>
-            {result.evidence_source && (
-              <span style={{ fontSize: '10px', background: '#1e1b4b', border: '1px solid #3730a3', borderRadius: '4px', padding: '2px 8px', color: '#a5b4fc', fontWeight: 600 }}>
-                SRC: {result.evidence_source}
+      {/* ── 3. MAIN SCORE & VERDICT HERO CARD ── */}
+      <div
+        className="human-card p-6 relative overflow-hidden bg-white"
+        style={{ borderColor: cfg.border }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-[130px_1fr] gap-6 items-center">
+          <ScoreRing
+            score={result.risk_score ?? result.threat_score ?? 0}
+            label={verdictLabel}
+            internalState={result.internal_state}
+          />
+
+          <div className="space-y-3 text-left">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                {result.threat_category || 'General Web Services'}
               </span>
-            )}
-          </div>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-slate-50 text-slate-500 border border-slate-200">
+                {inputType} Inspection
+              </span>
+              <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-50 text-slate-500 border border-slate-200">
+                Confidence: {Math.round((result.confidence || 0.85) * 100)}%
+              </span>
+              {result.evidence_source && (
+                <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                  {result.evidence_source}
+                </span>
+              )}
+            </div>
 
-          <div style={{ fontSize: '20px', fontWeight: 800, color: cfg.color, marginBottom: '4px', letterSpacing: '0.5px' }}>
-            VERDICT: {cfg.label}
-          </div>
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-slate-900">
+                {cfg.label}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                {cfg.summary}
+              </p>
+            </div>
 
-          <div style={{ fontSize: '12px', color: '#94a3b8', fontFamily: 'DM Mono, monospace', wordBreak: 'break-all', marginBottom: '10px' }}>
-            {result.url}
-          </div>
-
-          {/* Action buttons */}
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {verdictLabel !== 'LEGITIMATE' && verdictLabel !== 'LEGIT' && (
-              <button onClick={onOpenPreview} style={{
-                background: '#1a1a2e', border: '1px solid #333', borderRadius: '6px',
-                padding: '6px 12px', fontSize: '12px', color: '#e8e8f0', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: '6px',
-              }}>
-                <Eye size={13} color="#fbbf24" /> Safe Preview Mode
+            {/* Target URL with Copy */}
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800">
+              <span className="truncate flex-1 text-slate-700">{result.url}</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(result.url)
+                  setCopiedDomain(true)
+                  setTimeout(() => setCopiedDomain(false), 2000)
+                }}
+                className="text-[11px] px-2 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 cursor-pointer"
+                title="Copy Target URL"
+              >
+                <Copy className="w-3 h-3 text-slate-500" />
+                <span>{copiedDomain ? 'Copied' : 'Copy'}</span>
               </button>
-            )}
-            <button onClick={() => setShowFeedback(true)} style={{
-              background: '#111120', border: '1px solid #222', borderRadius: '6px',
-              padding: '6px 12px', fontSize: '12px', color: '#aaa', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '6px',
-            }}>
-              <ThumbsUp size={12} /> Submit Feedback
-            </button>
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {verdictLabel !== 'LEGITIMATE' && verdictLabel !== 'LEGIT' && (
+                <button
+                  onClick={onOpenPreview}
+                  className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Inspect in Safe Sandbox</span>
+                </button>
+              )}
+              <button
+                onClick={() => setShowFeedback(true)}
+                className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition"
+              >
+                <ThumbsUp className="w-3.5 h-3.5" />
+                <span>Submit Feedback</span>
+              </button>
+            </div>
           </div>
+        </div>
+
+        {/* Action Advice */}
+        <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 text-xs text-slate-600">
+          <ShieldCheck className="w-4 h-4 text-slate-700 shrink-0 mt-0.5" />
+          <span><strong>Action Advice:</strong> {cfg.actionAdvice}</span>
         </div>
       </div>
 
-      {/* ── 4. REDIRECT CHAIN INSPECTOR ── */}
+      {/* ── 4. REDIRECT CHAIN INSPECTION ── */}
       {redirectInfo && (
-        <div style={{ background: '#0f0f1a', border: '1px solid #1a1a2e', borderRadius: '12px', padding: '1.2rem', marginBottom: '1rem' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#38bdf8', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CornerDownRight size={15} /> Redirect Chain & Navigation Inspection
+        <div className="human-card p-5 space-y-3 bg-white border-slate-200">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
+              <CornerDownRight className="w-4 h-4 text-slate-600" />
+              <span>Redirect Path & Navigation Inspection</span>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <span style={{
-                fontSize: '10px', padding: '2px 8px', borderRadius: '4px', fontWeight: 700,
-                background: redirectInfo.is_cross_domain ? '#451010' : '#0a2d16',
-                color: redirectInfo.is_cross_domain ? '#f87171' : '#4ade80',
-                border: `1px solid ${redirectInfo.is_cross_domain ? '#7f1d1d' : '#1a5a30'}`
-              }}>
-                {redirectInfo.is_cross_domain ? '⚠️ CROSS-DOMAIN REDIRECT' : '✓ SAME-ORIGIN / DIRECT'}
+            <div className="flex items-center gap-2">
+              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${
+                redirectInfo.is_cross_domain
+                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              }`}>
+                {redirectInfo.is_cross_domain ? 'Cross-Domain Redirection' : 'Direct / Same-Origin'}
               </span>
-              <span style={{ fontSize: '10px', background: '#1e293b', color: '#cbd5e1', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                {redirectInfo.hops || 0} HOPS
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                {redirectInfo.hops || 0} Hops
               </span>
             </div>
           </div>
 
           {redirectInfo.chain && redirectInfo.chain.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="space-y-1.5">
               {redirectInfo.chain.map((step, idx) => (
-                <div key={idx} style={{
-                  background: '#0a0a12', border: '1px solid #1e293b', borderRadius: '8px', padding: '8px 12px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', fontSize: '11px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-                    <span style={{ color: '#818cf8', fontWeight: 700, fontFamily: 'monospace' }}>Hop {step.hop}:</span>
-                    <span style={{ color: '#e2e8f0', fontFamily: 'monospace', wordBreak: 'break-all' }}>{step.url}</span>
+                <div
+                  key={idx}
+                  className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs"
+                >
+                  <div className="flex items-center gap-2 truncate font-mono">
+                    <span className="text-slate-900 font-semibold shrink-0">Hop {step.hop}:</span>
+                    <span className="truncate text-slate-700">{step.url}</span>
                   </div>
-                  <span style={{
-                    fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px',
-                    background: step.status >= 300 && step.status < 400 ? '#2a1f00' : '#0a2d16',
-                    color: step.status >= 300 && step.status < 400 ? '#fbbf24' : '#4ade80',
-                    fontFamily: 'monospace', flexShrink: 0
-                  }}>
+                  <span className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded shrink-0 ${
+                    step.status >= 300 && step.status < 400
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}>
                     HTTP {step.status}
                   </span>
                 </div>
               ))}
               {redirectInfo.final_url && redirectInfo.final_url !== result.url && (
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', paddingLeft: '4px' }}>
-                  Final Destination: <span style={{ color: '#38bdf8', fontFamily: 'monospace' }}>{redirectInfo.final_url}</span>
+                <div className="text-xs text-slate-500 pt-1">
+                  Final Destination: <span className="font-mono text-slate-800 font-medium">{redirectInfo.final_url}</span>
                 </div>
               )}
             </div>
           ) : (
-            <div style={{ fontSize: '11px', color: '#94a3b8', background: '#0a0a12', padding: '10px 12px', borderRadius: '8px', border: '1px solid #1e293b' }}>
-              ✓ Direct navigation to destination (No intermediary redirect cloaking detected).
-            </div>
+            <p className="text-xs text-slate-500">
+              Direct navigation to destination (No intermediary cloaking detected).
+            </p>
           )}
         </div>
       )}
 
-      {/* ── 5. TRUSTED DOMAIN INTELLIGENCE CARD ── */}
+      {/* ── 5. BRAND REGISTRY VERIFICATION ── */}
       {tda && (
-        <div style={{
-          background: tda.is_trusted ? 'rgba(16, 185, 129, 0.08)' : (tda.match_level && tda.match_level.includes('IMPERSONATION') ? 'rgba(239, 68, 68, 0.12)' : '#0f0f1a'),
-          border: `1px solid ${tda.is_trusted ? '#059669' : (tda.match_level && tda.match_level.includes('IMPERSONATION') ? '#dc2626' : '#1a1a2e')}`,
-          borderRadius: '12px', padding: '1.2rem', marginBottom: '1rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '0.8rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="human-card p-5 space-y-3 bg-white border-slate-200">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
               {tda.is_trusted ? (
-                <ShieldCheck size={18} color="#10b981" />
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
               ) : (tda.match_level && tda.match_level.includes('IMPERSONATION')) ? (
-                <ShieldAlert size={18} color="#f87171" />
+                <ShieldAlert className="w-4 h-4 text-rose-600" />
               ) : (
-                <Shield size={18} color="#94a3b8" />
+                <Shield className="w-4 h-4 text-slate-600" />
               )}
-              <span style={{ fontSize: '13px', fontWeight: 700, color: tda.is_trusted ? '#34d399' : ((tda.match_level && tda.match_level.includes('IMPERSONATION')) ? '#f87171' : '#cbd5e1') }}>
-                Trusted Domain Intelligence & Knowledge Base
-              </span>
+              <span>Brand Registry Verification</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <div className="flex items-center gap-1.5 flex-wrap">
               {tda.brand_name && (
-                <span style={{
-                  fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '4px',
-                  background: tda.is_trusted ? '#064e3b' : '#451010',
-                  color: tda.is_trusted ? '#a7f3d0' : '#fca5a5',
-                  border: `1px solid ${tda.is_trusted ? '#047857' : '#7f1d1d'}`
-                }}>
-                  {tda.brand_name} {tda.service_name && tda.service_name !== tda.brand_name ? `(${tda.service_name})` : ''}
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">
+                  Target: {tda.brand_name}
                 </span>
               )}
-
-              <span style={{
-                fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '4px',
-                background: tda.is_trusted ? '#042f2e' : '#1e1b4b',
-                color: tda.is_trusted ? '#5eead4' : '#c7d2fe',
-                border: `1px solid ${tda.is_trusted ? '#115e59' : '#3730a3'}`
-              }}>
-                {tda.match_level} ({tda.match_score > 0 ? `+${tda.match_score}` : tda.match_score})
+              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-md ${
+                tda.is_trusted ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
+              }`}>
+                {tda.match_level}
               </span>
-
-              {tda.category && (
-                <span style={{ fontSize: '11px', background: '#1e293b', color: '#94a3b8', padding: '2px 8px', borderRadius: '4px' }}>
-                  {tda.category}
-                </span>
-              )}
-
-              {tda.is_hosting_provider && (
-                <span style={{ fontSize: '11px', background: '#3b2505', color: '#fcd34d', border: '1px solid #78350f', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                  ⚠️ Multi-Tenant Host
-                </span>
-              )}
             </div>
           </div>
 
-          {/* Registrable domain & verification info */}
-          <div style={{
-            background: '#0a0a12', borderRadius: '8px', border: '1px solid #1e293b', padding: '8px 12px',
-            marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', fontSize: '11px'
-          }}>
+          <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
             <div>
-              <span style={{ color: '#64748b' }}>Public Suffix Root (PSL): </span>
-              <span style={{ color: '#e2e8f0', fontFamily: 'monospace', fontWeight: 700 }}>
-                {tda.registrable_domain || 'N/A'}
-              </span>
+              <span className="text-slate-500">Root Suffix (PSL): </span>
+              <span className="text-slate-900 font-semibold">{tda.registrable_domain || 'N/A'}</span>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Status: </span>
-              <span style={{ color: tda.is_trusted ? '#4ade80' : '#fbbf24', fontWeight: 600 }}>
+              <span className="text-slate-500">Status: </span>
+              <span className={tda.is_trusted ? 'text-emerald-700 font-semibold' : 'text-amber-700 font-semibold'}>
                 {tda.status || 'UNVERIFIED'}
               </span>
             </div>
           </div>
 
-          {/* Verified Reasons List */}
           {tda.reasons && tda.reasons.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div className="space-y-1 text-xs">
               {tda.reasons.map((r, i) => (
-                <div key={i} style={{
-                  fontSize: '11px', display: 'flex', alignItems: 'flex-start', gap: '6px',
-                  color: r.startsWith('✓') ? '#a7f3d0' : (r.startsWith('⚠️') ? '#fca5a5' : '#cbd5e1')
-                }}>
+                <div key={i} className="text-slate-600 flex items-start gap-2">
                   <span>{r}</span>
                 </div>
               ))}
@@ -746,77 +750,45 @@ function ResultPanel({ result, inputType, onOpenPreview }) {
         </div>
       )}
 
-      {/* ── 6. THREAT FINGERPRINT & IDENTIFIER ── */}
-      <div style={{ background: '#0f0f1a', border: '1px solid #1a1a2e', borderRadius: '12px', padding: '1.2rem', marginBottom: '1rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 600, color: '#c084fc', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Fingerprint size={15} /> Threat Fingerprint & On-Chain Identifier
-          </div>
-          <span style={{ fontSize: '10px', background: '#2e1065', color: '#e9d5ff', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-            SHA-256
-          </span>
-        </div>
-        <div style={{
-          background: '#0a0a12', border: '1px solid #1e293b', borderRadius: '8px', padding: '10px 14px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px'
-        }}>
-          <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#c084fc', wordBreak: 'break-all' }}>
-            {fingerprint || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
-          </span>
-          <button
-            onClick={() => {
-              if (fingerprint) {
-                navigator.clipboard.writeText(fingerprint)
-                setCopiedFp(true)
-                setTimeout(() => setCopiedFp(false), 2000)
-              }
-            }}
-            style={{
-              background: '#1e1b4b', border: '1px solid #3730a3', borderRadius: '6px',
-              padding: '5px 10px', fontSize: '11px', color: '#e0e7ff', cursor: 'pointer', flexShrink: 0,
-              display: 'flex', alignItems: 'center', gap: '4px'
-            }}
-          >
-            <Copy size={11} /> {copiedFp ? 'Copied' : 'Copy'}
-          </button>
-        </div>
-      </div>
-
-      {/* ── 6. UNIFIED EVIDENCE DECOMPOSITION ── */}
+      {/* ── 6. EXPLAINABLE AI EVIDENCE ── */}
       {evidenceList.length > 0 && (
-        <div style={{ background: '#0f0f1a', border: '1px solid #1a1a2e', borderRadius: '12px', padding: '1.2rem', marginBottom: '1rem' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#f87171', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <AlertTriangle size={15} /> Multi-Source Evidence & Explainable Reasoning
+        <div className="human-card p-5 space-y-3 bg-white border-slate-200">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
+            <AlertCircle className="w-4 h-4 text-slate-600" />
+            <span>Decision Factors (Explainable Features)</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div className="space-y-1.5">
             {evidenceList.map((item, idx) => {
               const impact = (item.impact || 'MEDIUM').toUpperCase()
               const isBenign = impact === 'BENIGN'
               const isCritical = impact === 'CRITICAL'
               const isHigh = impact === 'HIGH'
-              const impactColor = isBenign ? '#4ade80' : isCritical ? '#ef4444' : isHigh ? '#f87171' : '#fbbf24'
-              const impactBg = isBenign ? '#0a2d16' : isCritical ? '#451010' : isHigh ? '#3d1212' : '#2a2200'
+              const badgeStyle = isBenign
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : isCritical
+                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                : isHigh
+                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200'
 
               return (
-                <div key={idx} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '8px 12px', background: '#0a0a12', borderRadius: '8px', border: '1px solid #1e293b',
-                  fontSize: '12px', gap: '10px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: isBenign ? '#a7f3d0' : '#e2e8f0' }}>
-                    <span style={{ color: impactColor }}>{isBenign ? '✓' : '•'}</span>
+                <div
+                  key={idx}
+                  className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs"
+                >
+                  <div className="flex items-center gap-2 text-slate-800">
+                    <span className={isBenign ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
+                      •
+                    </span>
                     <span>{item.factor}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                  <div className="flex items-center gap-2 shrink-0">
                     {item.source && (
-                      <span style={{ fontSize: '9px', fontWeight: 700, padding: '2px 5px', borderRadius: '3px', background: '#1e293b', color: '#94a3b8' }}>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-slate-500 border border-slate-200 hidden sm:inline">
                         {item.source}
                       </span>
                     )}
-                    <span style={{
-                      fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px',
-                      background: impactBg, color: impactColor,
-                    }}>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${badgeStyle}`}>
                       {impact}
                     </span>
                   </div>
@@ -827,65 +799,84 @@ function ResultPanel({ result, inputType, onOpenPreview }) {
         </div>
       )}
 
-      {/* ── 7. RISK BREAKDOWN ── */}
-      <div style={{ background: '#0f0f1a', border: '1px solid #1a1a2e', borderRadius: '12px', padding: '1.2rem', marginBottom: '1rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 600, color: '#818cf8', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <TrendingUp size={14} /> Unified Risk Signal Decomposition
+      {/* ── 7. RISK BREAKDOWN BARS ── */}
+      <div className="human-card p-5 space-y-4 bg-white border-slate-200">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
+          <TrendingUp className="w-4 h-4 text-slate-600" />
+          <span>Multi-Layer Risk Signal Decomposition</span>
         </div>
-        <RiskBar value={rb.url_risk ?? result.threat_score ?? 0} label="URL Lexical & Structural Risk (35%)" />
-        <RiskBar value={rb.webpage_risk ?? 0} label="Webpage DOM & Form Risk (25%)" />
+        <RiskBar value={rb.url_risk ?? result.threat_score ?? 0} label="Lexical & Structural URL Risk (35%)" />
+        <RiskBar value={rb.webpage_risk ?? 0} label="DOM & Form Credential Risk (25%)" />
         <RiskBar value={rb.behavior_risk ?? 0} label="Behavioral Anomaly Risk (20%)" />
-        <RiskBar value={rb.threat_intel_score ?? (isKnownThreat ? 100 : 0)} label="Threat Intelligence & Similarity (15%)" color="#60a5fa" />
-        <RiskBar value={rb.ai_deception_score ?? 0} label="AI/Deception Likelihood Indicator (5%)" color="#c084fc" />
-
-        {(rb.ai_deception_score ?? 0) > 0 && (
-          <div style={{
-            background: '#1a1525', border: '1px solid #3a2a5a', borderRadius: '6px',
-            padding: '8px 12px', marginTop: '8px', fontSize: '11px', color: '#a78bfa',
-            display: 'flex', gap: '8px',
-          }}>
-            <Info size={13} style={{ flexShrink: 0, marginTop: 1 }} />
-            <span>AI/Deception Risk is an empirical likelihood score based on measurable structural signals. It does not represent absolute proof of AI generation.</span>
-          </div>
-        )}
+        <RiskBar value={rb.threat_intel_score ?? (isKnownThreat ? 100 : 0)} label="Threat Intelligence Match (15%)" color="#0284c7" />
+        <RiskBar value={rb.ai_deception_score ?? 0} label="Synthetic / Deception Indicator (5%)" color="#9333ea" />
       </div>
 
-      {/* ── 8. THREAT INTEL & BLOCKCHAIN RECORD ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-        <div style={{ background: '#0f0f1a', border: '1px solid #1a1a2e', borderRadius: '12px', padding: '1.2rem' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#34d399', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Database size={13} /> Threat Intelligence Status
+      {/* ── 8. THREAT INTEL & IMMUTABLE LEDGER ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="human-card p-5 space-y-2 bg-white border-slate-200">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
+            <Database className="w-4 h-4 text-slate-600" />
+            <span>Threat Intelligence Feeds</span>
           </div>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: isKnownThreat || intel.previously_detected ? '#f87171' : '#4ade80', marginBottom: '4px' }}>
+          <div className="text-xs font-medium text-slate-800">
             {isKnownThreat
-              ? `⚠ Active Match: ${tim.source} (${tim.threat_type || 'Malicious'})`
+              ? `Active Match: ${tim.source}`
               : intel.previously_detected
-              ? `⚠ Previously Detected (${intel.prior_detection_count} reports)`
-              : '✓ Clean — No Active Match in Threat Feeds'}
+              ? `Previously Flagged (${intel.prior_detection_count} reports)`
+              : 'Clean: No active match in known abuse databases'}
           </div>
-          <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
-            Sources: OpenPhish • URLhaus • PhishTank • On-Chain Logs
+          <div className="text-[11px] text-slate-400 font-mono">
+            Sources: OpenPhish • URLhaus • PhishTank • Community Feeds
           </div>
         </div>
 
-        <div style={{ background: '#0f0f1a', border: '1px solid #1a1a2e', borderRadius: '12px', padding: '1.2rem' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#60a5fa', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Link2 size={13} /> Blockchain Threat Record
+        <div className="human-card p-5 space-y-2 bg-white border-slate-200">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
+            <Link2 className="w-4 h-4 text-slate-600" />
+            <span>Immutable Blockchain Ledger</span>
           </div>
           {result.logged_to_blockchain ? (
             <div>
-              <div style={{ fontSize: '12px', color: '#4ade80', marginBottom: '4px' }}>✓ Tamper-evident on-chain record confirmed</div>
-              <div style={{ fontSize: '10px', color: '#64748b', fontFamily: 'DM Mono, monospace', wordBreak: 'break-all' }}>
+              <div className="text-xs font-semibold text-emerald-700">Recorded On-Chain</div>
+              <div className="text-[11px] text-slate-500 font-mono truncate mt-0.5">
                 Hash: {result.block_hash ? result.block_hash.slice(0, 24) + '...' : 'Recorded'}
               </div>
             </div>
           ) : (
-            <div style={{ fontSize: '12px', color: '#64748b' }}>
-              {verdictLabel === 'LEGITIMATE' || verdictLabel === 'LEGIT' ? 'No threat to record (Legitimate)' : 'Mining threshold not reached'}
+            <div className="text-xs text-slate-500">
+              {verdictLabel === 'LEGITIMATE' || verdictLabel === 'LEGIT'
+                ? 'No threat to record (Verified clean)'
+                : 'Queued for mining block verification'}
             </div>
           )}
         </div>
       </div>
+
+      {/* ── 9. FINGERPRINT & IDENTIFIER ── */}
+      <div className="human-card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs bg-white border-slate-200">
+        <div className="flex items-center gap-2 text-slate-700 font-mono">
+          <Fingerprint className="w-4 h-4 shrink-0 text-slate-500" />
+          <span className="font-semibold">SHA-256:</span>
+          <span className="truncate max-w-[280px] sm:max-w-md text-slate-600">
+            {fingerprint || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            if (fingerprint) {
+              navigator.clipboard.writeText(fingerprint)
+              setCopiedFp(true)
+              setTimeout(() => setCopiedFp(false), 2000)
+            }
+          }}
+          className="btn-secondary px-3 py-1 text-xs font-medium flex items-center gap-1.5 cursor-pointer shrink-0"
+        >
+          <Copy className="w-3.5 h-3.5 text-slate-500" />
+          <span>{copiedFp ? 'Copied Hash' : 'Copy Hash'}</span>
+        </button>
+      </div>
+
     </div>
   )
 }
@@ -916,9 +907,9 @@ export default function ScanPage() {
       } : null
       const data = await scanUrl(urlInput.trim(), bFeatures)
       if (data) setResult({ ...data, input_type: 'URL' })
-      else setError('Scan failed. Please verify the URL.')
+      else setError('Scan failed. Please verify the link format.')
     } catch {
-      setError('Service unavailable. Please retry.')
+      setError('Service unavailable. Please retry shortly.')
     } finally {
       setLoading(false)
     }
@@ -931,7 +922,7 @@ export default function ScanPage() {
     try {
       const data = await scanQr(decodedUrl)
       if (data) setResult({ ...data, input_type: 'QR', qr_decoded_url: decodedUrl })
-      else setError('QR analysis failed.')
+      else setError('QR destination analysis failed.')
     } catch {
       setError('Service error during QR analysis.')
     } finally {
@@ -956,7 +947,7 @@ export default function ScanPage() {
     }
   }
 
-  // Adaptive Real-Time Risk Update (Section 14)
+  // Adaptive Real-Time Risk Update
   useEffect(() => {
     if (result && snapshot && snapshot.anomalyScore > 40 && result.label === 'LEGIT') {
       setResult(prev => ({
@@ -973,7 +964,7 @@ export default function ScanPage() {
   }, [snapshot, result])
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 60px)', background: '#0a0a0f', padding: '2rem 1rem', fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="min-h-[calc(100vh-64px)] bg-[#f8fafc] text-slate-900 py-10 px-4 sm:px-6">
       {safePreviewUrl && (
         <SafePreviewModal
           url={safePreviewUrl}
@@ -985,154 +976,163 @@ export default function ScanPage() {
         />
       )}
 
-      <div style={{ maxWidth: '780px', margin: '0 auto' }}>
+      <div className="max-w-3xl mx-auto space-y-6">
+        
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            background: '#1a1a2e', border: '1px solid #2a2a40', borderRadius: '999px',
-            padding: '5px 14px', marginBottom: '1rem', fontSize: '11px', color: '#818cf8',
-          }}>
-            <Shield size={12} /> Domain-Independent Multi-Input Threat Engine
+        <div className="text-center space-y-2.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm">
+            <Shield className="w-3.5 h-3.5 text-slate-700" />
+            <span>Multi-Layer Threat Engine</span>
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#e8e8f0', margin: '0 0 6px' }}>
-            Unified Threat Scanner
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900">
+            Inspect Any Link, QR, or Webpage
           </h1>
-          <p style={{ fontSize: '13px', color: '#666', margin: '0 0 12px' }}>
-            Analyze URLs, QR codes, or websites before trusting them
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+            Test links in a secure sandbox before opening them on your phone or PC.
           </p>
-          {isAuthenticated ? (
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)',
-              borderRadius: '8px', padding: '6px 14px', fontSize: '12px', color: '#34d399',
-            }}>
-              <CheckCircle2 size={14} />
-              <span>Signed in as <strong>{user?.email}</strong> — Scans automatically recorded to your personal history.</span>
-            </div>
-          ) : (
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.25)',
-              borderRadius: '8px', padding: '6px 14px', fontSize: '12px', color: '#a5b4fc',
-            }}>
-              <Shield size={14} />
-              <span>
-                Open Source Guest Mode.{' '}
+
+          {/* User Status / Mode indicator */}
+          <div className="pt-0.5">
+            {isAuthenticated ? (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Signed in as <strong>{user?.email}</strong> — Scans saved automatically.</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-1.5 text-slate-500 text-xs">
+                <span>Free Guest Scanner</span>
+                <span>•</span>
                 <button
                   onClick={openAuthModal}
-                  style={{
-                    background: 'transparent', border: 'none', color: '#38bdf8',
-                    textDecoration: 'underline', cursor: 'pointer', fontWeight: 600, padding: 0,
-                  }}
+                  className="text-slate-900 underline font-medium cursor-pointer"
                 >
                   Sign in
-                </button>{' '}
-                only if you need to track personal scan logs and security alerts.
-              </span>
-            </div>
-          )}
+                </button>
+                <span>only to save history.</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Tab Selector */}
-        <div style={{
-          display: 'flex', gap: '4px', background: '#0f0f1a', border: '1px solid #1a1a2e',
-          borderRadius: '12px', padding: '4px', marginBottom: '1.5rem',
-        }}>
+        {/* Tab Selection */}
+        <div className="flex p-1 rounded-xl bg-slate-100 border border-slate-200 gap-1">
           {TABS.map(({ key, label, icon: Icon }) => (
-            <button key={key} onClick={() => { setActiveTab(key); setResult(null); setError(null); setUrlInput('') }}
-              style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                padding: '10px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-                fontSize: '13px', fontWeight: activeTab === key ? 600 : 400,
-                background: activeTab === key ? '#1e1e3a' : 'transparent',
-                color: activeTab === key ? '#818cf8' : '#666',
-              }}>
-              <Icon size={14} /> {label}
+            <button
+              key={key}
+              onClick={() => { setActiveTab(key); setResult(null); setError(null); setUrlInput('') }}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeTab === key
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200 font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Icon className="w-4 h-4 text-slate-500" />
+              <span>{label}</span>
             </button>
           ))}
         </div>
 
         {/* URL Mode */}
         {activeTab === 'url' && (
-          <form onSubmit={handleUrlScan} style={{ display: 'flex', gap: '8px' }}>
-            <input
-              type="text" value={urlInput} onChange={e => setUrlInput(e.target.value)}
-              placeholder="Enter URL to inspect (e.g. https://portal-verification-auth.com)"
-              required
-              style={{
-                flex: 1, padding: '12px 14px', borderRadius: '10px', background: '#0f0f1a',
-                border: '1px solid #1a1a2e', color: '#e8e8f0', fontSize: '14px',
-                fontFamily: 'DM Mono, monospace', outline: 'none',
-              }}
-            />
-            <button type="submit" disabled={loading || !urlInput.trim()} style={{
-              padding: '12px 22px', borderRadius: '10px', background: loading ? '#3a3a6e' : '#6366f1',
-              color: '#fff', border: 'none', fontWeight: 600, cursor: loading ? 'wait' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: '6px',
-            }}>
-              {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <ScanLine size={16} />}
-              {loading ? 'Analyzing...' : 'Scan URL'}
-            </button>
-          </form>
+          <div className="space-y-3">
+            <form onSubmit={handleUrlScan} className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <ScanLine className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <input
+                  type="text"
+                  value={urlInput}
+                  onChange={e => setUrlInput(e.target.value)}
+                  placeholder="Paste URL (e.g., https://paypa1-security-verification.xyz)"
+                  required
+                  className="clean-input w-full pl-10 pr-4 py-2.5 text-sm font-mono"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !urlInput.trim()}
+                className="btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 font-medium"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ScanLine className="w-4 h-4" />}
+                <span>{loading ? 'Analyzing...' : 'Scan Link'}</span>
+              </button>
+            </form>
+
+            {/* Quick-test Presets */}
+            <div className="flex flex-wrap items-center gap-2 text-xs pt-0.5">
+              <span className="text-slate-500">Try sample:</span>
+              {PRESET_SAMPLES.map(({ label, url, tag }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setUrlInput(url)}
+                  className="px-2.5 py-1 rounded-md bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 flex items-center gap-1.5 transition cursor-pointer font-medium text-xs shadow-xs"
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    tag === 'Safe' ? 'bg-emerald-500' : tag === 'Phishing' ? 'bg-rose-500' : 'bg-amber-500'
+                  }`} />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* QR Mode */}
         {activeTab === 'qr' && (
-          <div>
+          <div className="space-y-3">
             <QrScanner onDecoded={handleQrDecoded} />
-            <div style={{
-              background: '#1a150a', border: '1px solid #3a2a00', borderRadius: '8px',
-              padding: '10px 14px', fontSize: '11px', color: '#fbbf24', display: 'flex', gap: '8px',
-            }}>
-              <Lock size={12} style={{ flexShrink: 0, marginTop: 1 }} />
-              <span>PhishSense safe QR scanning policy: Decoded destinations are never visited automatically. Safe preview mode is enforced.</span>
+            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
+              <Lock className="w-4 h-4 shrink-0 text-amber-600" />
+              <span>QR Policy: Destination links are isolated and analyzed in a sandbox prior to browser navigation.</span>
             </div>
           </div>
         )}
 
         {/* Website Mode */}
         {activeTab === 'website' && (
-          <form onSubmit={handleWebsiteScan} style={{ display: 'flex', gap: '8px' }}>
-            <input
-              type="text" value={urlInput} onChange={e => setUrlInput(e.target.value)}
-              placeholder="https://example-site.com"
-              required
-              style={{
-                flex: 1, padding: '12px 14px', borderRadius: '10px', background: '#0f0f1a',
-                border: '1px solid #1a1a2e', color: '#e8e8f0', fontSize: '14px',
-                fontFamily: 'DM Mono, monospace', outline: 'none',
-              }}
-            />
-            <button type="submit" disabled={loading || !urlInput.trim()} style={{
-              padding: '12px 22px', borderRadius: '10px', background: loading ? '#3a3a6e' : '#6366f1',
-              color: '#fff', border: 'none', fontWeight: 600, cursor: loading ? 'wait' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: '6px',
-            }}>
-              {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Globe size={16} />}
-              {loading ? 'Analyzing...' : 'Analyze Website'}
+          <form onSubmit={handleWebsiteScan} className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <Globe className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <input
+                type="text"
+                value={urlInput}
+                onChange={e => setUrlInput(e.target.value)}
+                placeholder="https://example-site.com"
+                required
+                className="clean-input w-full pl-10 pr-4 py-2.5 text-sm font-mono"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !urlInput.trim()}
+              className="btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 font-medium"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+              <span>{loading ? 'Analyzing...' : 'Deep Inspect'}</span>
             </button>
           </form>
         )}
 
+        {/* Loading state */}
         {loading && (
-          <div style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-            <Loader2 size={32} color="#6366f1" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1rem', display: 'block' }} />
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#e8e8f0' }}>Running multi-input threat pipeline...</div>
-            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>AI inference · DOM extraction · Campaign similarity · Blockchain lookup</div>
+          <div className="human-card p-10 text-center space-y-2.5 animate-in fade-in bg-white border-slate-200">
+            <Loader2 className="w-7 h-7 text-slate-700 animate-spin mx-auto" />
+            <h3 className="text-sm font-semibold text-slate-900">Running Threat Pipeline</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Extracting domain indicators · Scanning redirect chains · Cross-checking threat ledger
+            </p>
           </div>
         )}
 
+        {/* Error state */}
         {error && (
-          <div style={{
-            marginTop: '1rem', background: '#2d0a0a', border: '1px solid #5a1515',
-            borderRadius: '10px', padding: '1rem', color: '#f87171', fontSize: '13px',
-            display: 'flex', alignItems: 'center', gap: '8px',
-          }}>
-            <AlertTriangle size={16} /> {error}
+          <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+            <span>{error}</span>
           </div>
         )}
 
+        {/* Scan Results */}
         {!loading && result && (
           <ResultPanel
             result={result}
@@ -1141,17 +1141,20 @@ export default function ScanPage() {
           />
         )}
 
-        {/* Live Interaction HUD Note */}
+        {/* Behavioral Telemetry HUD */}
         {snapshot && (
-          <div style={{
-            marginTop: '1.5rem', background: '#0f0f1a', border: '1px solid #1a1a2e',
-            borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center',
-            gap: '8px', fontSize: '11px', color: '#666',
-          }}>
-            <Activity size={12} color="#818cf8" />
-            <span>Real-time behavioral telemetry: Anomaly Index <strong style={{ color: '#818cf8' }}>{snapshot.anomalyScore}</strong> | Keystrokes: {snapshot.keystrokes?.length || 0} | Clicks: {snapshot.clicks?.length || 0}</span>
+          <div className="p-2.5 rounded-lg bg-white border border-slate-200 flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5 text-slate-700" />
+              <span>Behavioral Telemetry Online:</span>
+              <span className="font-mono text-slate-900 font-semibold">Anomaly Index {snapshot.anomalyScore}</span>
+            </div>
+            <span className="text-[11px] text-slate-400 font-mono">
+              Clicks: {snapshot.clicks?.length || 0} • Keys: {snapshot.keystrokes?.length || 0}
+            </span>
           </div>
         )}
+
       </div>
     </div>
   )
