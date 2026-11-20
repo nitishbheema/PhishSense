@@ -41,6 +41,7 @@ function createSession() {
     formFocusEvents: [],     // [{field, t}]
     fieldFillTimes: {},      // {fieldName: ms}
     formSubmitTime: null,
+    pasteIntoPasswordField: false,
 
     // Timing
     idlePeriods: [],         // [{start, end}]
@@ -191,8 +192,11 @@ class BehaviorTracker {
     }
   }
 
-  _onPaste = () => {
+  _onPaste = (e) => {
     this.session.pasteCount++
+    if (e.target?.type === 'password') {
+      this.session.pasteIntoPasswordField = true
+    }
   }
 
   _onScroll = () => {
@@ -313,10 +317,10 @@ class BehaviorTracker {
     let score = 0
     const flags = []
 
-    // 1. Paste into password field (big red flag)
-    if (s.pasteCount > 0) {
+    // 1. Paste into password field (only flagged if pasted into a password input, never on search/scanner bars)
+    if (s.pasteIntoPasswordField) {
       score += 20
-      flags.push('Password pasted (not typed)')
+      flags.push('Password pasted into input field (not typed)')
     }
 
     // 2. Extremely fast form fill (bot-like < 2s)

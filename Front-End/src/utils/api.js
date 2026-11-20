@@ -71,48 +71,88 @@ export async function analyzeBehavior(session) {
 }
 
 // ── Unified URL scan ──────────────────────────────────────────────────────────
-export async function scanUrl(url, behaviorFeatures = null) {
-  const body = { url }
-  if (behaviorFeatures) body.behavior = behaviorFeatures
+export async function scanUrl(url) {
+  const body = { url: url.trim() }
 
   const result = await post('/api/scan', body)
-  if (result) return result
+  if (result && !result.error) {
+    return result
+  }
 
-  // Local heuristic fallback
-  const lower = url.toLowerCase()
-  const suspiciousTLDs = ['.click', '.info', '.xyz', '.top', '.tk', '.cf', '.ml']
-  let score = 0
-  if (suspiciousTLDs.some(t => lower.includes(t))) score += 30
-  if (lower.includes('@'))                          score += 20
-  if (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(lower)) score += 30
-  if (lower.includes('login') && lower.includes('secure')) score += 15
-
-  const label = score >= 60 ? 'PHISHING' : score >= 30 ? 'SUSPICIOUS' : 'LEGIT'
+  // Handle server errors or rate limiting
+  const isRateLimit = result?.verdict === 'RATE_LIMITED' || result?.error?.toLowerCase().includes('rate limit')
   return {
-    url, label, threat_score: score, confidence: 0.5, input_type: 'URL',
-    threat_category: 'General Web Services',
-    attack_family: 'Threat Family #1 (Credential Harvesting Portal)',
-    similarity_analysis: { related_threat_found: false, similarity_score: 0.0 },
-    risk_breakdown: { url_risk: score, webpage_risk: 0, behavior_risk: 0, ai_deception_score: 0, threat_intel_score: 0 },
-    threat_intelligence: { fingerprint: null, previously_detected: false, prior_detection_count: 0 },
-    flags: [], explainability: [], logged_to_blockchain: false, block_hash: null,
-    source: 'PhishSense (Heuristic — Backend offline)',
+    url,
+    verdict: isRateLimit ? 'RATE_LIMITED' : 'ANALYSIS_FAILED',
+    label: isRateLimit ? 'RATE_LIMITED' : 'ANALYSIS_FAILED',
+    internal_state: isRateLimit ? 'RATE_LIMITED' : 'ANALYSIS_FAILED',
+    threat_score: 0,
+    risk_score: 0,
+    confidence: 0.0,
+    input_type: 'URL',
+    error: result?.error || 'Unable to connect to analysis services. Please check your internet connection.',
+    user_message: isRateLimit
+      ? (result.error || 'Scan rate limit reached. Please wait a few moments before trying again.')
+      : 'The security analysis could not be completed. Please try again later. Do not assume this link is safe.',
+    source: 'PhishSense (Connection Error)',
+    evidence: [{
+      factor: result?.error || 'Backend or AI analysis service was unavailable.',
+      impact: 'CRITICAL',
+      source: 'NETWORK'
+    }],
+    flags: ['Analysis Incomplete — Server Unreachable'],
     timestamp: new Date().toISOString(),
   }
 }
 
 // ── QR code scan ─────────────────────────────────────────────────────────────
 export async function scanQr(decodedUrl, rawData = '') {
-  const result = await post('/api/scan/qr', { decoded_url: decodedUrl, raw_data: rawData })
-  if (result) return result
+  const result = await post('/api/scan/qr', { decoded_url: decodedUrl.trim(), raw_data: rawData })
+  if (result && !result.error) {
+    return result
+  }
   return await scanUrl(decodedUrl)
 }
 
 // ── Website analysis ─────────────────────────────────────────────────────────
 export async function analyzeWebsite(url) {
-  const result = await post('/api/scan/website', { url })
-  if (result) return result
+  const result = await post('/api/scan/website', { url: url.trim() })
+  if (result && !result.error) {
+    return result
+  }
   return await scanUrl(url)
+}
+
+// ── Complete 10-Category Website Security & Health Audit ─────────────────────
+export async function auditWebsite(url, isOwnerAuthorized = false) {
+  const result = await post('/api/audit/website', {
+    url: url.trim(),
+    is_owner_authorized: isOwnerAuthorized
+  })
+  if (result && !result.error) {
+    return result
+  }
+  return {
+    error: result?.error || 'Website audit could not be completed. Please check your network connection.',
+    target_url: url,
+    target_domain: url.replace(/^https?:\/\//i, '').split('/')[0],
+    executive_summary: {
+      posture_status: 'INSUFFICIENT_DATA',
+      posture_label: 'Audit Incomplete',
+      posture_badge: 'INFORMATIONAL',
+      summary: result?.error || 'Audit service was unreachable. Please retry shortly.',
+      issue_counts: { critical: 0, high: 0, medium: 0, low: 0, informational: 1, clean: 0, total_categories: 10 }
+    },
+    categories: []
+  }
+}
+
+export async function verifyDomainOwnership(domain, token) {
+  return post('/api/audit/verify-ownership', { domain: domain.trim(), token: token.trim() })
+}
+
+export async function getDomainAuditHistory(domain) {
+  return get(`/api/audit/history/${encodeURIComponent(domain)}`)
 }
 
 // ── User Feedback Loop (Section 20) ───────────────────────────────────────────

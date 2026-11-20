@@ -70,7 +70,6 @@ public class AuthService {
         EmailOtp otp = EmailOtp.builder()
                 .email(cleanEmail)
                 .otpHash(otpHash)
-                .rawOtpForDev(code)
                 .expiresAt(expiresAt)
                 .failedAttempts(0)
                 .used(false)
@@ -85,21 +84,18 @@ public class AuthService {
             log.warn("[AuthService] Error invoking emailService: {}", ex.getMessage());
         }
 
-        log.info("----------------------------------------------------------------");
-        log.info(">>>>> PHISHSENSE VERIFICATION OTP FOR {}: [{}] (Valid 10m, Sent: {}) <<<<<", cleanEmail, code, emailSent);
-        log.info("----------------------------------------------------------------");
+        log.info("[AuthService] Verification code generated for {} (Sent via email: {})", maskEmail(cleanEmail), emailSent);
 
         String userMessage = emailSent
                 ? "Verification code sent to your email (" + cleanEmail + "). Check your inbox and spam folder."
-                : "Verification code generated! Enter the 6-digit code to sign in.";
+                : "Verification code generated! Please check your email.";
 
         return Map.of(
                 "success", true,
                 "message", userMessage,
                 "email", cleanEmail,
                 "emailSent", emailSent,
-                "expiresInSeconds", 600,
-                "devOtp", code // Provided so user is never blocked even if SMTP is unavailable
+                "expiresInSeconds", 600
         );
     }
 
@@ -326,5 +322,14 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("SHA-256 hashing error", e);
         }
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return "***";
+        int atIdx = email.indexOf("@");
+        String user = email.substring(0, atIdx);
+        String domain = email.substring(atIdx);
+        if (user.length() <= 2) return user.charAt(0) + "***" + domain;
+        return user.substring(0, 2) + "***" + domain;
     }
 }

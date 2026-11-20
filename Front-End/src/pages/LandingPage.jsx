@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import {
   Shield, Brain, Link2, ChevronRight, Activity, Lock, Globe,
   QrCode, ScanLine, LogIn, User as UserIcon, CheckCircle2,
-  AlertTriangle, ArrowRight, ShieldCheck, Zap, HelpCircle
+  AlertTriangle, ArrowRight, ShieldCheck, Zap, HelpCircle,
+  Smartphone, MessageSquare, AlertCircle, Sparkles
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { getDashboardStats } from '../utils/api'
@@ -28,7 +29,7 @@ export default function LandingPage() {
       {/* Top Banner */}
       <div className="bg-slate-100 border-b border-slate-200 px-4 py-2 text-center text-xs text-slate-600 flex items-center justify-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
-        <span>PhishSense 3.5 is live: Multi-modal QR inspection and blockchain threat ledger.</span>
+        <span>PhishSense 3.5: Anonymous URL & QR threat detection for everyday users.</span>
         <Link to="/scan" className="font-semibold text-slate-900 hover:underline ml-1">
           Open Scanner &rarr;
         </Link>
@@ -69,7 +70,7 @@ export default function LandingPage() {
           {isAuthenticated ? (
             <button
               onClick={openProfileModal}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-slate-200 text-slate-800 hover:bg-slate-50 transition"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-slate-200 text-slate-800 hover:bg-slate-50 transition cursor-pointer"
             >
               <UserIcon className="w-4 h-4 text-slate-600" />
               <span>{user?.fullName || user?.email?.split('@')[0] || 'My Account'}</span>
@@ -90,55 +91,199 @@ export default function LandingPage() {
       <section className="pt-16 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
         
         {/* Category Pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-medium mb-6 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-medium mb-6 shadow-sm">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Real-time Phishing, QR Code & Domain Impersonation Defense</span>
+          <span>Free & Anonymous Link Verification • No Account Required</span>
         </div>
 
         {/* Main Headline */}
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-950 leading-tight mb-5">
-          Detect deceptive links before <br className="hidden sm:inline" />
-          they compromise your personal data.
+          Received a suspicious link? <br className="hidden sm:inline" />
+          Check before you open it.
         </h1>
 
         <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
-          PhishSense analyzes cloaked redirects, typosquatting domains, and credential traps in under a second. 
-          Clear explanations without confusing technical jargon.
+          Whether you received a WhatsApp bank alert, an SMS delivery notice, or a suspicious QR code, 
+          PhishSense scans destination links in a secure sandbox and tells you in plain language whether it is safe.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
           <Link
             to="/scan"
             className="btn-primary w-full sm:w-auto px-6 py-2.5 text-sm font-semibold flex items-center justify-center gap-2 text-decoration-none shadow-sm"
           >
             <ScanLine className="w-4 h-4" />
-            <span>Launch Free Threat Scanner</span>
+            <span>Scan a Link or QR Code Now</span>
             <ChevronRight className="w-4 h-4" />
           </Link>
           <Link
             to="/phishing-demo"
             className="btn-secondary w-full sm:w-auto px-5 py-2.5 text-sm font-medium flex items-center justify-center gap-2 text-decoration-none"
           >
-            <span>Interactive Phishing Lab</span>
+            <span>Interactive Scam Lab</span>
             <ArrowRight className="w-4 h-4 text-slate-400" />
           </Link>
         </div>
 
         {/* Trust Signals */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 border-t border-slate-200 pt-6">
+        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 border-t border-slate-200 pt-6">
           <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-slate-700" />
-            <span>No Account Required to Scan</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span>100% Free & No Sign-In Needed</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-slate-700" />
-            <span>Privacy Guard: URLs Never Stored Publicly</span>
+            <span>Private: Sensitive Tokens Auto-Redacted</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-slate-700" />
-            <span>Sub-Second Response Time</span>
+            <Zap className="w-3.5 h-3.5 text-amber-600" />
+            <span>Sub-Second Multi-Layer Analysis</span>
           </div>
+        </div>
+      </section>
+
+      {/* Common Indian Scam Scenarios Section */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+            <MessageSquare className="w-3.5 h-3.5 text-slate-700" />
+            <span>Real-World Fraud Protection</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+            Have you seen messages like these recently?
+          </h2>
+          <p className="text-slate-500 text-xs sm:text-sm max-w-xl mx-auto mt-1">
+            Over 80% of phishing attacks in India arrive via WhatsApp, SMS, or QR codes posing as essential services.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          {/* Card 1: Bank KYC */}
+          <div className="human-card p-5 bg-white border border-slate-200 hover:border-slate-300 transition space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">Bank KYC / PAN Suspension SMS</h3>
+                  <span className="text-[11px] text-slate-400">SBI, HDFC, ICICI, PNB impersonation</span>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                High Risk
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 space-y-1">
+              <p className="text-[11px] text-slate-500 font-sans">Sample Message:</p>
+              <p className="italic">"Dear Customer, your SBI account is blocked today. Please update your PAN immediately to unblock: <span className="text-rose-600 underline">http://sbi-kyc-pan-update.com/login</span>"</p>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              <strong>The Trap:</strong> Mimics bank netbanking portals to steal your credentials and OTPs. Official banks never send third-party .com or .xyz links.
+            </p>
+            <div className="pt-1">
+              <Link to="/scan" className="text-xs font-semibold text-slate-900 hover:underline inline-flex items-center gap-1">
+                <span>Test in Scanner</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: India Post */}
+          <div className="human-card p-5 bg-white border border-slate-200 hover:border-slate-300 transition space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                  <Smartphone className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">India Post / Parcel Delivery Alert</h3>
+                  <span className="text-[11px] text-slate-400">India Post, Blue Dart, DTDC traps</span>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                High Risk
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 space-y-1">
+              <p className="text-[11px] text-slate-500 font-sans">Sample Message:</p>
+              <p className="italic">"IndiaPost: Your parcel #IN8812 cannot be delivered due to incomplete address. Update address & pay ₹5 fee: <span className="text-amber-700 underline">http://indiapost-parce1-redelivery.in</span>"</p>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              <strong>The Trap:</strong> Uses the nominal ₹5 charge as an excuse to capture your debit/credit card CVV and netbanking credentials.
+            </p>
+            <div className="pt-1">
+              <Link to="/scan" className="text-xs font-semibold text-slate-900 hover:underline inline-flex items-center gap-1">
+                <span>Test in Scanner</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 3: Electricity Bill */}
+          <div className="human-card p-5 bg-white border border-slate-200 hover:border-slate-300 transition space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">Electricity Bill Disconnection Threat</h3>
+                  <span className="text-[11px] text-slate-400">Bijli board / Discom impersonation</span>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                High Risk
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 space-y-1">
+              <p className="text-[11px] text-slate-500 font-sans">Sample Message:</p>
+              <p className="italic">"Urgent: Your electricity power will be disconnected tonight at 9:30 PM due to unpaid previous month bill: <span className="text-rose-600 underline">http://bijli-bill-payment-alert.xyz/pay</span>"</p>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              <strong>The Trap:</strong> Manufactures artificial panic to force quick clicks, leading to fake payment gateways or screen-sharing remote apps (AnyDesk/TeamViewer).
+            </p>
+            <div className="pt-1">
+              <Link to="/scan" className="text-xs font-semibold text-slate-900 hover:underline inline-flex items-center gap-1">
+                <span>Test in Scanner</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 4: QR Code & UPI Refund */}
+          <div className="human-card p-5 bg-white border border-slate-200 hover:border-slate-300 transition space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-800">
+                  <QrCode className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">QR Code Cashback / Payment Reversal</h3>
+                  <span className="text-[11px] text-slate-400">PhonePe, Paytm, Google Pay stickers</span>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                Deceptive
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 space-y-1">
+              <p className="text-[11px] text-slate-500 font-sans">Sample Scheme:</p>
+              <p className="italic">"Scan this QR code with your camera or UPI app to instantly receive your ₹5,000 refund/lottery prize into your account."</p>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              <strong>The Trap:</strong> You never need to scan a QR code or enter your UPI PIN to <em>receive</em> money. Scanning only authorizes money leaving your account.
+            </p>
+            <div className="pt-1">
+              <Link to="/scan" className="text-xs font-semibold text-slate-900 hover:underline inline-flex items-center gap-1">
+                <span>Decode QR Safely</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -149,42 +294,42 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-1.5 text-rose-600 text-xs font-semibold mb-1">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Example Threat Analysis</span>
+                <span>Transparent Analysis Example</span>
               </div>
-              <h3 className="text-base font-semibold text-slate-900">How PhishSense breaks down deceptive links</h3>
+              <h3 className="text-base font-semibold text-slate-900">How PhishSense breaks down deceptive destinations</h3>
             </div>
             <span className="text-xs font-mono font-medium px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200 self-start sm:self-auto">
-              Risk Score: 96 / 100 • Critical
+              Risk Score: 94 / 100 • Phishing Scam
             </span>
           </div>
 
           <div className="mt-5 space-y-4">
             {/* Target URL */}
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs flex flex-wrap items-center gap-1.5 text-slate-700">
-              <span className="text-slate-400">https://</span>
-              <span className="bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-medium border border-rose-200">paypa1-account-security</span>
-              <span className="text-slate-400">.xyz/</span>
-              <span className="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">verify?redirect=stealth</span>
+              <span className="text-slate-400">http://</span>
+              <span className="bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-medium border border-rose-200">sbi-kyc-pan-update</span>
+              <span className="text-slate-400">.com/</span>
+              <span className="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">auth/netbanking</span>
             </div>
 
             {/* Explanation items */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div className="p-3 rounded-lg bg-white border border-slate-200 text-left">
-                <span className="text-xs font-semibold text-slate-900 block mb-1">1. Typo-Squatting</span>
+                <span className="text-xs font-semibold text-slate-900 block mb-1">1. Brand Impersonation</span>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Replaced letter 'l' with numeral '1' to mimic authentic PayPal domain.
+                  Registered domain is 'sbi-kyc-pan-update.com', not official 'onlinesbi.sbi' registered to State Bank of India.
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-white border border-slate-200 text-left">
-                <span className="text-xs font-semibold text-slate-900 block mb-1">2. High-Risk TLD</span>
+                <span className="text-xs font-semibold text-slate-900 block mb-1">2. Insecure Protocol</span>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Disposable top-level domain registered 48 hours ago without WHOIS records.
+                  Served over plain HTTP without valid TLS encryption, an immediate red flag for any legitimate banking portal.
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-white border border-slate-200 text-left">
-                <span className="text-xs font-semibold text-slate-900 block mb-1">3. Hidden Redirection</span>
+                <span className="text-xs font-semibold text-slate-900 block mb-1">3. Clear Action Advice</span>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Script silently relays entered passwords to an unverified secondary receiver.
+                  "Do not enter passwords or OTPs. Report this number to 1930 or cybercrime.gov.in."
                 </p>
               </div>
             </div>
@@ -199,22 +344,22 @@ export default function LandingPage() {
             {
               label: 'Links Scanned',
               value: stats ? (stats.total_scans ?? stats.total_threats ?? stats.url_scan_count ?? 0).toLocaleString() : '0',
-              desc: 'Live database records'
+              desc: 'Live scan records'
             },
             {
               label: 'Phishing Traps',
               value: stats ? (stats.phishing_count ?? 0).toLocaleString() : '0',
-              desc: 'Confirmed malicious traps'
+              desc: 'Confirmed scam links'
             },
             {
               label: 'QR Codes Scanned',
               value: stats ? (stats.qr_scan_count ?? 0).toLocaleString() : '0',
-              desc: 'QR payloads inspected'
+              desc: 'QR destinations parsed'
             },
             {
               label: 'Verified Safe',
               value: stats ? (stats.legit_count ?? 0).toLocaleString() : '0',
-              desc: 'Clean domains confirmed'
+              desc: 'Legitimate services'
             },
           ].map(({ label, value, desc }) => (
             <div key={label} className="human-card p-5 text-left bg-white border-slate-200">
@@ -235,7 +380,7 @@ export default function LandingPage() {
             Multi-Layer Protection Capabilities
           </h2>
           <p className="text-slate-500 text-sm max-w-md mx-auto">
-            Comprehensive verification designed for everyday browsing safety.
+            Combining machine learning, domain intelligence, and redirect isolation.
           </p>
         </div>
 
@@ -243,33 +388,33 @@ export default function LandingPage() {
           {[
             {
               icon: ScanLine,
-              title: 'URL Dissection',
-              desc: 'Inspects 16 linguistic and structural indicators (entropy, hyphens, token abuse) without relying only on outdated blacklists.',
+              title: 'PSL-Aware URL Dissection',
+              desc: 'Inspects 16 linguistic and structural features (brand typosquatting, entropy, suspicious TLDs, token abuse) without relying solely on static blacklists.',
             },
             {
               icon: QrCode,
-              title: 'QR Code Decoding',
-              desc: 'Safely inspect QR destinations from photos or camera before your phone or browser visits the link.',
+              title: 'QR Code Decoding Sandbox',
+              desc: 'Extracts the underlying destination from photos or camera scans and evaluates it before your device can open or execute it.',
             },
             {
               icon: Globe,
-              title: 'Webpage Emulation',
-              desc: 'Scans for hidden iframes, password input traps, external CDN script hijacking, and fake brand logos.',
+              title: 'SSRF-Protected Redirection Tracing',
+              desc: 'Pre-flight DNS validation prevents SSRF attacks and safely traces shortened URLs (bit.ly, tinyurl) to their real final destination.',
             },
             {
               icon: Brain,
-              title: 'Behavioral ML',
-              desc: 'Machine learning models analyze interaction patterns to detect anomaly signatures during credential input.',
+              title: 'Random Forest Inference',
+              desc: 'Trained on 10,000 real-world benign and phishing URLs, achieving 87.05% standalone lexical accuracy and 0.8568 F1-score.',
             },
             {
               icon: Link2,
-              title: 'Tamper-Proof Ledger',
-              desc: 'Every confirmed scam signature is hashed on an immutable blockchain ledger to permanently alert future users.',
+              title: 'Immutable Threat Ledger',
+              desc: 'Every verified phishing destination is hashed and recorded on an immutable blockchain ledger to protect other users.',
             },
             {
               icon: Lock,
-              title: 'Clear Action Advice',
-              desc: 'Verdicts are written in plain language with specific guidance on whether the site is safe to use.',
+              title: 'Honest Explainable Verdicts',
+              desc: 'Unreachable sites are marked as INSUFFICIENT_EVIDENCE rather than falsely given a clean pass. You always receive plain-English guidance.',
             },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="human-card p-5 flex flex-col justify-between bg-white border-slate-200">
@@ -294,31 +439,31 @@ export default function LandingPage() {
         <div className="human-card p-6 bg-white border-slate-200">
           <div className="flex items-center gap-2 mb-4">
             <HelpCircle className="w-4 h-4 text-slate-700" />
-            <h3 className="text-sm font-semibold text-slate-900">Basic Safety Rules Before Clicking Any Link</h3>
+            <h3 className="text-sm font-semibold text-slate-900">4 Practical Rules to Stay Safe from Online Scams</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="flex items-start gap-2.5">
               <span className="font-semibold text-slate-900">01.</span>
               <p className="text-slate-600">
-                <strong>Always verify the domain root:</strong> <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">paypal.com.scam-host.net</code> is hosted on <code>scam-host.net</code>, not PayPal.
+                <strong>Always inspect the domain root:</strong> <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">sbi.co.in.scam-domain.xyz</code> belongs to <code>scam-domain.xyz</code>, not State Bank of India.
               </p>
             </div>
             <div className="flex items-start gap-2.5">
               <span className="font-semibold text-slate-900">02.</span>
               <p className="text-slate-600">
-                <strong>Beware artificial urgency:</strong> Messages threatening immediate account suspension are almost always phishing traps.
+                <strong>Beware artificial urgency:</strong> Messages threatening "electricity cut in 1 hour" or "account blocked today" create panic so you act before thinking.
               </p>
             </div>
             <div className="flex items-start gap-2.5">
               <span className="font-semibold text-slate-900">03.</span>
               <p className="text-slate-600">
-                <strong>Inspect physical QR stickers:</strong> Verify that parking meter or restaurant payment QR codes haven't been pasted over with fake stickers.
+                <strong>UPI PIN is only for sending money:</strong> You never need to enter your PIN or scan a QR code to receive payments, cashback, or refunds.
               </p>
             </div>
             <div className="flex items-start gap-2.5">
               <span className="font-semibold text-slate-900">04.</span>
               <p className="text-slate-600">
-                <strong>Scan with PhishSense:</strong> When uncertain, paste the address here first before opening it on your personal device.
+                <strong>Scan before clicking:</strong> When in doubt, copy the link or upload the QR photo to PhishSense first before opening it on your personal device.
               </p>
             </div>
           </div>
@@ -332,7 +477,7 @@ export default function LandingPage() {
             Ready to inspect a suspicious link or QR code?
           </h2>
           <p className="text-slate-300 text-xs sm:text-sm max-w-md mx-auto mb-6">
-            Instant machine learning analysis, brand verification, and plain-language threat verdicts.
+            Instant machine learning analysis, brand verification, and plain-language threat verdicts. No sign-up required.
           </p>
           <Link
             to="/scan"
@@ -354,7 +499,7 @@ export default function LandingPage() {
             <span>— Intelligent Phishing Detection Platform</span>
           </div>
           <p className="text-slate-400">
-            Final Year Research Project • Clean White UI
+            For suspicious links & cyber fraud reporting in India, call National Cybercrime Helpline 1930
           </p>
         </div>
       </footer>

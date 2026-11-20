@@ -84,24 +84,49 @@ public class BehaviorAnalysisService {
                                            Map<String, Object> behaviorFeatures,
                                            String userId, String userEmail) {
 
-        int urlRisk = aiUrlResult != null
-            ? ((Number) aiUrlResult.getOrDefault("threat_score", 0)).intValue() : 0;
-        double confidence = aiUrlResult != null
-            ? ((Number) aiUrlResult.getOrDefault("confidence", 0.5)).doubleValue() : 0.5;
-        String aiLabel = aiUrlResult != null
-            ? (String) aiUrlResult.getOrDefault("label", "LEGIT") : "LEGIT";
-        String verdict = aiUrlResult != null && aiUrlResult.containsKey("verdict")
-            ? String.valueOf(aiUrlResult.get("verdict")) : ("LEGIT".equals(aiLabel) ? "LEGITIMATE" : aiLabel);
-        String internalState = aiUrlResult != null && aiUrlResult.containsKey("internal_state")
+        if (aiUrlResult == null || aiUrlResult.isEmpty()) {
+            Map<String, Object> fallback = new LinkedHashMap<>();
+            String domain = extractDomain(url);
+            fallback.put("scan_id", UUID.randomUUID().toString());
+            fallback.put("url", com.phishguard.util.UrlSanitizer.sanitizeUrl(url));
+            fallback.put("domain", domain);
+            fallback.put("label", "ANALYSIS_FAILED");
+            fallback.put("verdict", "ANALYSIS_FAILED");
+            fallback.put("internal_state", "ANALYSIS_FAILED");
+            fallback.put("threat_score", 0);
+            fallback.put("risk_score", 0);
+            fallback.put("confidence", 0.0);
+            fallback.put("input_type", inputType);
+            fallback.put("threat_category", detectCategoryHeuristic(domain));
+            fallback.put("attack_family", "Unverified");
+            fallback.put("threat_intelligence_match", Map.of("is_known_threat", false, "status", "UNAVAILABLE"));
+            fallback.put("redirect_info", Map.of("hops", 0, "final_url", url, "is_cross_domain", false));
+            fallback.put("threat_fingerprint", "");
+            fallback.put("flags", List.of("AI Analysis Engine Offline"));
+            fallback.put("evidence", List.of(Map.of("factor", "AI classification service unreachable. Target cannot be confirmed as safe.", "impact", "HIGH")));
+            fallback.put("explainability", List.of(Map.of("factor", "AI classification service unreachable. Target cannot be confirmed as safe.", "impact", "HIGH")));
+            fallback.put("source", "PhishSense Core (Service Unavailable)");
+            fallback.put("message", "The security analysis could not be completed. Please try again later. Do not assume this link is safe.");
+            fallback.put("user_message", "The security analysis could not be completed. Please try again later. Do not assume this link is safe.");
+            fallback.put("analysis_components", Map.of("ai_model", "UNAVAILABLE", "threat_intelligence", "OFFLINE"));
+            return fallback;
+        }
+
+        int urlRisk = ((Number) aiUrlResult.getOrDefault("threat_score", 0)).intValue();
+        double confidence = ((Number) aiUrlResult.getOrDefault("confidence", 0.5)).doubleValue();
+        String aiLabel = (String) aiUrlResult.getOrDefault("label", "INSUFFICIENT_EVIDENCE");
+        String verdict = aiUrlResult.containsKey("verdict")
+            ? String.valueOf(aiUrlResult.get("verdict")) : aiLabel;
+        String internalState = aiUrlResult.containsKey("internal_state")
             ? String.valueOf(aiUrlResult.get("internal_state")) : verdict;
-        Object threatIntelMatch = aiUrlResult != null ? aiUrlResult.get("threat_intelligence_match") : null;
-        Object redirectInfo = aiUrlResult != null ? aiUrlResult.get("redirect_info") : null;
-        Object evidenceData = aiUrlResult != null ? aiUrlResult.get("evidence") : null;
-        Object trustedDomainAnalysis = aiUrlResult != null ? aiUrlResult.get("trusted_domain_analysis") : null;
+        Object threatIntelMatch = aiUrlResult.get("threat_intelligence_match");
+        Object redirectInfo = aiUrlResult.get("redirect_info");
+        Object evidenceData = aiUrlResult.get("evidence");
+        Object trustedDomainAnalysis = aiUrlResult.get("trusted_domain_analysis");
 
         int webpageRisk = 0;
         int aiDeceptionScore = 0;
-        if (webpageSignals == null && aiUrlResult != null && aiUrlResult.containsKey("webpage_signals")) {
+        if (webpageSignals == null && aiUrlResult.containsKey("webpage_signals")) {
             @SuppressWarnings("unchecked")
             Map<String, Object> ws = (Map<String, Object>) aiUrlResult.get("webpage_signals");
             webpageSignals = ws;
@@ -116,13 +141,12 @@ public class BehaviorAnalysisService {
             aiDeceptionScore = ((Number) webpageSignals.getOrDefault("ai_deception_score", 0)).intValue();
         }
 
+        // NOTE: Scanner-page UI keystrokes/pastes NEVER contaminate target URL threat score.
+        // Telemetry is isolated exclusively for dedicated behavioral research experiments.
         int behaviorRisk = 0;
-        if (behaviorFeatures != null) {
-            behaviorRisk = ((Number) behaviorFeatures.getOrDefault("frontend_anomaly_score", 0)).intValue();
-        }
 
         String domain = extractDomain(url);
-        String fingerprint = aiUrlResult != null && aiUrlResult.containsKey("threat_fingerprint")
+        String fingerprint = aiUrlResult.containsKey("threat_fingerprint")
             ? String.valueOf(aiUrlResult.get("threat_fingerprint"))
             : buildThreatFingerprint(domain, aiLabel);
         long priorCount = threatRepo.countByThreatFingerprint(fingerprint);
@@ -138,7 +162,7 @@ public class BehaviorAnalysisService {
 
         // Sector Classification (Domain-independent)
         String category = "General Web Services";
-        if (aiUrlResult != null && aiUrlResult.containsKey("sector")) {
+        if (aiUrlResult.containsKey("sector")) {
             category = (String) aiUrlResult.get("sector");
         } else if (webpageSignals != null && webpageSignals.containsKey("sector")) {
             category = (String) webpageSignals.get("sector");
@@ -148,7 +172,7 @@ public class BehaviorAnalysisService {
 
         // Attack Family & Similarity detection
         String attackFamily = "Threat Family #1 (Credential Harvesting Portal)";
-        if (aiUrlResult != null && aiUrlResult.containsKey("attack_family")) {
+        if (aiUrlResult.containsKey("attack_family")) {
             attackFamily = (String) aiUrlResult.get("attack_family");
         } else if (webpageSignals != null && webpageSignals.containsKey("attack_family")) {
             attackFamily = (String) webpageSignals.get("attack_family");
@@ -162,9 +186,6 @@ public class BehaviorAnalysisService {
 
         // Unified score calculation
         int unifiedScore = urlRisk;
-        if (behaviorFeatures != null && !behaviorFeatures.isEmpty()) {
-            unifiedScore = (int) Math.round(urlRisk * 0.7 + behaviorRisk * 0.3);
-        }
         if (threatIntelScore == 100) {
             unifiedScore = 100;
             verdict = "PHISHING";
@@ -174,7 +195,8 @@ public class BehaviorAnalysisService {
 
         String finalLabel = verdict;
         if ("INSUFFICIENT_EVIDENCE".equalsIgnoreCase(internalState)) {
-            finalLabel = "SUSPICIOUS";
+            finalLabel = "INSUFFICIENT_EVIDENCE";
+            verdict = "INSUFFICIENT_EVIDENCE";
         }
 
         // Save Threat Log
@@ -440,10 +462,10 @@ public class BehaviorAnalysisService {
             ));
 
             ThreatLog threat = ThreatLog.builder()
-                .url(url)
+                .url(com.phishguard.util.UrlSanitizer.sanitizeUrl(url))
                 .domain(domain)
                 .inputType(inputType)
-                .qrDecodedUrl(qrDecodedUrl)
+                .qrDecodedUrl(qrDecodedUrl != null ? com.phishguard.util.UrlSanitizer.sanitizeUrl(qrDecodedUrl) : null)
                 .threatType(label)
                 .threatScore(unifiedScore)
                 .aiConfidence(confidence)
@@ -577,7 +599,7 @@ public class BehaviorAnalysisService {
 
         ThreatLog threat = ThreatLog.builder()
             .sessionId(dto.getSessionId())
-            .url(dto.getUrl() != null ? dto.getUrl() : "unknown")
+            .url(dto.getUrl() != null ? com.phishguard.util.UrlSanitizer.sanitizeUrl(dto.getUrl()) : "unknown")
             .domain(domain)
             .threatType(label)
             .threatScore(prediction.score())

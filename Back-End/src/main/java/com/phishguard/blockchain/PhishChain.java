@@ -1,6 +1,7 @@
 package com.phishguard.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phishguard.util.UrlSanitizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -9,7 +10,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Local Proof-of-Work, tamper-evident hash-chain ledger for threat intelligence recording.
+ * Provides thread-safe transaction mining and cryptographic verification across concurrent requests.
+ * Sensitive URL query parameters, tokens, and PII are redacted prior to block incorporation.
+ */
 @Component
 @Slf4j
 public class PhishChain {
@@ -20,8 +27,8 @@ public class PhishChain {
     @Value("${blockchain.node-id:node-1}")
     private String nodeId;
 
-    private final List<Block> chain = new ArrayList<>();
-    private final List<PendingTransaction> mempool = new ArrayList<>();
+    private final List<Block> chain = new CopyOnWriteArrayList<>();
+    private final List<PendingTransaction> mempool = new CopyOnWriteArrayList<>();
     private final ObjectMapper mapper = new ObjectMapper();
 
     // ── Block ────────────────────────────────────
@@ -63,29 +70,38 @@ public class PhishChain {
 
     public PhishChain() {
         chain.add(genesisBlock());
-        log.info("[PhishChain] Initialized with genesis block");
+        log.info("[PhishChain] Initialized thread-safe hash-chain ledger with genesis block");
     }
 
-    // ── Public API ───────────────────────────────
+    // ── Public API (Synchronized for Concurrency Safety) ───────────────────────
 
     /** Add single threat — immediately mines a block */
-    public String addThreat(Map<String, Object> threatData) {
-        threatData.put("tx_id", UUID.randomUUID().toString().substring(0,8));
-        threatData.put("tx_time", Instant.now().toString());
-        Block b = mineBlock(List.of(threatData));
+    public synchronized String addThreat(Map<String, Object> threatData) {
+        Map<String, Object> sanitizedData = new LinkedHashMap<>(threatData);
+        if (sanitizedData.containsKey("url")) {
+            sanitizedData.put("url", UrlSanitizer.sanitizeUrl((String) sanitizedData.get("url")));
+        }
+        sanitizedData.put("tx_id", UUID.randomUUID().toString().substring(0, 8));
+        sanitizedData.put("tx_time", Instant.now().toString());
+
+        Block b = mineBlock(List.of(sanitizedData));
         chain.add(b);
-        log.info("[PhishChain] Block #{} mined hash={}", b.index, b.hash.substring(0, 12) + "...");
+        log.info("[PhishChain] Block #{} mined hash={}", b.index, b.hash.substring(0, Math.min(12, b.hash.length())) + "...");
         return b.hash;
     }
 
     /** Queue threat to mempool, mine when >= 3 pending */
-    public String queueThreat(Map<String, Object> threatData) {
-        mempool.add(new PendingTransaction(threatData));
+    public synchronized String queueThreat(Map<String, Object> threatData) {
+        Map<String, Object> sanitizedData = new LinkedHashMap<>(threatData);
+        if (sanitizedData.containsKey("url")) {
+            sanitizedData.put("url", UrlSanitizer.sanitizeUrl((String) sanitizedData.get("url")));
+        }
+        mempool.add(new PendingTransaction(sanitizedData));
         if (mempool.size() >= 3) return flushMempool();
         return "PENDING";
     }
 
-    public String flushMempool() {
+    public synchronized String flushMempool() {
         if (mempool.isEmpty()) return null;
         List<Map<String,Object>> txns = mempool.stream().map(t -> t.data).toList();
         mempool.clear();
@@ -94,7 +110,7 @@ public class PhishChain {
         return b.hash;
     }
 
-    public boolean isChainValid() {
+    public synchronized boolean isChainValid() {
         for (int i = 1; i < chain.size(); i++) {
             Block cur  = chain.get(i);
             Block prev = chain.get(i - 1);
@@ -105,18 +121,18 @@ public class PhishChain {
         return true;
     }
 
-    public List<Block>  getChain()       { return List.copyOf(chain); }
-    public Block        getLatestBlock() { return chain.get(chain.size() - 1); }
-    public int          getChainLength() { return chain.size(); }
-    public int          getMempoolSize() { return mempool.size(); }
-    public List<PendingTransaction> getMempool() { return List.copyOf(mempool); }
+    public synchronized List<Block>  getChain()       { return List.copyOf(chain); }
+    public synchronized Block        getLatestBlock() { return chain.get(chain.size() - 1); }
+    public synchronized int          getChainLength() { return chain.size(); }
+    public synchronized int          getMempoolSize() { return mempool.size(); }
+    public synchronized List<PendingTransaction> getMempool() { return List.copyOf(mempool); }
 
     // ── Mining ───────────────────────────────────
 
     private Block mineBlock(List<Map<String,Object>> txns) {
         Block prev = chain.get(chain.size() - 1);
         Block b    = new Block(chain.size(), prev.hash, txns, nodeId);
-        String target = "0".repeat(difficulty);
+        String target = "0".repeat(Math.max(1, Math.min(4, difficulty)));
         long start = System.currentTimeMillis();
         while (!b.hash.startsWith(target)) {
             b.nonce++;
@@ -163,8 +179,8 @@ public class PhishChain {
 
     private Block genesisBlock() {
         Block g = new Block(0, "0000000000000000",
-            List.of(Map.of("type","GENESIS","msg","PhishSense Chain v3 — Unified Threat Detection")), "genesis");
-        g.hash = sha256("PHISHSENSE_GENESIS_V3");
+            List.of(Map.of("type","GENESIS","msg","PhishSense Proof-of-Work Threat Ledger v4.0")), "genesis");
+        g.hash = sha256("PHISHSENSE_GENESIS_V4");
         return g;
     }
 }

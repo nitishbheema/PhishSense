@@ -14,6 +14,7 @@ public class RateLimiterService {
     // Key -> list of request timestamps in seconds
     private final Map<String, LinkedList<Long>> otpRequestBuckets = new ConcurrentHashMap<>();
     private final Map<String, LinkedList<Long>> loginAttemptBuckets = new ConcurrentHashMap<>();
+    private final Map<String, LinkedList<Long>> scanRequestBuckets = new ConcurrentHashMap<>();
 
     // Max 5 OTP requests in 10 minutes (600 seconds)
     private static final int OTP_MAX_REQUESTS = 5;
@@ -23,12 +24,21 @@ public class RateLimiterService {
     private static final int LOGIN_MAX_ATTEMPTS = 10;
     private static final long LOGIN_WINDOW_SECONDS = 300;
 
+    // Max 30 scan requests in 5 minutes (300 seconds) per IP (protects free-tier resources)
+    private static final int SCAN_MAX_REQUESTS = 30;
+    private static final long SCAN_WINDOW_SECONDS = 300;
+
     public synchronized boolean allowOtpRequest(String identifier) {
         return checkRateLimit(otpRequestBuckets, identifier.toLowerCase(), OTP_MAX_REQUESTS, OTP_WINDOW_SECONDS);
     }
 
     public synchronized boolean allowLoginAttempt(String ipAddress) {
         return checkRateLimit(loginAttemptBuckets, ipAddress, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_SECONDS);
+    }
+
+    public synchronized boolean allowScanRequest(String ipAddress) {
+        String key = (ipAddress == null || ipAddress.isBlank()) ? "anonymous" : ipAddress.trim();
+        return checkRateLimit(scanRequestBuckets, key, SCAN_MAX_REQUESTS, SCAN_WINDOW_SECONDS);
     }
 
     private boolean checkRateLimit(Map<String, LinkedList<Long>> buckets, String key, int maxRequests, long windowSeconds) {
@@ -61,6 +71,18 @@ public class RateLimiterService {
         long oldestInWindow = timestamps.getFirst();
         long now = Instant.now().getEpochSecond();
         long diff = OTP_WINDOW_SECONDS - (now - oldestInWindow);
+        return Math.max(0, diff);
+    }
+
+    public long getRemainingScanCooldownSeconds(String ipAddress) {
+        String key = (ipAddress == null || ipAddress.isBlank()) ? "anonymous" : ipAddress.trim();
+        LinkedList<Long> timestamps = scanRequestBuckets.get(key);
+        if (timestamps == null || timestamps.size() < SCAN_MAX_REQUESTS) {
+            return 0;
+        }
+        long oldestInWindow = timestamps.getFirst();
+        long now = Instant.now().getEpochSecond();
+        long diff = SCAN_WINDOW_SECONDS - (now - oldestInWindow);
         return Math.max(0, diff);
     }
 }

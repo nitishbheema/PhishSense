@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "last_updated": "2026-10-02T12:00:00Z",
+  "version": "2.1.0",
+  "last_updated": "2026-11-20T17:06:40Z",
   "description": "PhishSense Production Trusted Domain Knowledge Base with Multi-Tenant & PSL Awareness",
   "verification_sources": [
     "ICANN Root Zone Database & RFC 8482",
@@ -1403,6 +1403,366 @@
       "is_hosting_provider": false,
       "trusted_score": 1.0,
       "notes": "Hospitality booking and postal parcel tracking portals"
+    },
+    {
+      "id": "td-in-rbi",
+      "brand_name": "Reserve Bank of India",
+      "service_name": "RBI Central Banking & Regulatory Portal",
+      "registrable_domain": "rbi.org.in",
+      "official_domains": [
+        "rbi.org.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.rbi.org.in",
+        "cms.rbi.org.in",
+        "opportunities.rbi.org.in"
+      ],
+      "official_aliases": [],
+      "category": "Banking & Finance",
+      "verification_source": "Reserve Bank of India Official Registry",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "India central banking regulatory institution"
+    },
+    {
+      "id": "td-in-npci",
+      "brand_name": "NPCI",
+      "service_name": "National Payments Corporation of India & UPI",
+      "registrable_domain": "npci.org.in",
+      "official_domains": [
+        "npci.org.in",
+        "upi.org.in",
+        "bhimupi.org.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.npci.org.in",
+        "bhim.org.in"
+      ],
+      "official_aliases": [
+        "upi.org.in"
+      ],
+      "category": "Payment Platforms & Gateways",
+      "verification_source": "NPCI Official Registry",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Umbrella organization for retail payments and settlement systems in India"
+    },
+    {
+      "id": "td-in-phonepe",
+      "brand_name": "PhonePe",
+      "service_name": "PhonePe Payments & Financial Services",
+      "registrable_domain": "phonepe.com",
+      "official_domains": [
+        "phonepe.com",
+        "phonepe.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.phonepe.com",
+        "business.phonepe.com"
+      ],
+      "official_aliases": [],
+      "category": "Payment Platforms & Gateways",
+      "verification_source": "PhonePe Official Corporate Registry",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Major Indian digital payments and financial services platform"
+    },
+    {
+      "id": "td-in-paytm",
+      "brand_name": "Paytm",
+      "service_name": "Paytm Digital Payments & One97 Communications",
+      "registrable_domain": "paytm.com",
+      "official_domains": [
+        "paytm.com",
+        "paytmbank.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.paytm.com",
+        "business.paytm.com",
+        "dashboard.paytm.com"
+      ],
+      "official_aliases": [],
+      "category": "Payment Platforms & Gateways",
+      "verification_source": "One97 Communications Official Registry",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Indian multinational financial technology company"
+    },
+    {
+      "id": "td-in-uidai",
+      "brand_name": "UIDAI",
+      "service_name": "Unique Identification Authority of India (Aadhaar)",
+      "registrable_domain": "uidai.gov.in",
+      "official_domains": [
+        "uidai.gov.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.uidai.gov.in",
+        "myaadhaar.uidai.gov.in",
+        "resident.uidai.gov.in",
+        "appointments.uidai.gov.in"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "Government of India NIC Registry",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official Aadhaar identity platform of India"
+    },
+    {
+      "id": "td-in-irctc",
+      "brand_name": "IRCTC",
+      "service_name": "Indian Railway Catering and Tourism Corporation",
+      "registrable_domain": "irctc.co.in",
+      "official_domains": [
+        "irctc.co.in",
+        "irctctourism.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.irctc.co.in",
+        "eticketing.irctc.co.in"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "Indian Railways / NIC Registry",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official online train ticketing and tourism portal for Indian Railways"
+    },
+    {
+      "id": "td-in-indiapost",
+      "brand_name": "India Post",
+      "service_name": "Department of Posts & India Post Payments Bank",
+      "registrable_domain": "indiapost.gov.in",
+      "official_domains": [
+        "indiapost.gov.in",
+        "ippbonline.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.indiapost.gov.in",
+        "tracking.indiapost.gov.in",
+        "onlinepost.indiapost.gov.in"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "Department of Posts India",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official postal and parcel delivery service of the Government of India"
+    },
+    {
+      "id": "td-in-incometax",
+      "brand_name": "Income Tax Department",
+      "service_name": "Income Tax Department e-Filing & NSDL / Protean",
+      "registrable_domain": "incometax.gov.in",
+      "official_domains": [
+        "incometax.gov.in",
+        "tin-nsdl.com",
+        "proteantech.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.incometax.gov.in",
+        "eportal.incometax.gov.in",
+        "tin.tin-nsdl.com"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "Ministry of Finance India",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official tax filing and PAN issuance platforms"
+    },
+    {
+      "id": "td-in-epfo",
+      "brand_name": "EPFO",
+      "service_name": "Employees Provident Fund Organisation",
+      "registrable_domain": "epfindia.gov.in",
+      "official_domains": [
+        "epfindia.gov.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.epfindia.gov.in",
+        "unifiedportal-mem.epfindia.gov.in",
+        "passbook.epfindia.gov.in"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "Ministry of Labour and Employment India",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official provident fund and pension portal for Indian employees"
+    },
+    {
+      "id": "td-in-digilocker",
+      "brand_name": "DigiLocker",
+      "service_name": "National Digital Document Wallet",
+      "registrable_domain": "digilocker.gov.in",
+      "official_domains": [
+        "digilocker.gov.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.digilocker.gov.in",
+        "accounts.digitallocker.gov.in"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "Digital India / MeitY",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Flagship initiative of MeitY for digital issuance and verification of documents"
+    },
+    {
+      "id": "td-in-parivahan",
+      "brand_name": "Parivahan Sewa",
+      "service_name": "Ministry of Road Transport and Highways (Vahan & Sarathi)",
+      "registrable_domain": "parivahan.gov.in",
+      "official_domains": [
+        "parivahan.gov.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.parivahan.gov.in",
+        "sarathi.parivahan.gov.in",
+        "vahan.parivahan.gov.in",
+        "echallan.parivahan.gov.in"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "MoRTH / NIC",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Vehicle registration, driving license and e-challan portal"
+    },
+    {
+      "id": "td-in-cybercrime",
+      "brand_name": "National Cyber Crime Reporting",
+      "service_name": "Cyber Crime Portal & CERT-In",
+      "registrable_domain": "cybercrime.gov.in",
+      "official_domains": [
+        "cybercrime.gov.in",
+        "cert-in.org.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.cybercrime.gov.in",
+        "www.cert-in.org.in"
+      ],
+      "official_aliases": [],
+      "category": "Government & Public Sector",
+      "verification_source": "Ministry of Home Affairs / CERT-In",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Official Indian citizen cyber fraud reporting hotline (1930) and CERT-In"
+    },
+    {
+      "id": "td-in-courier-logistics",
+      "brand_name": "Indian Courier & Express Logistics",
+      "service_name": "Blue Dart, Delhivery & DTDC Logistics",
+      "registrable_domain": "bluedart.com",
+      "official_domains": [
+        "bluedart.com",
+        "delhivery.com",
+        "dtdc.in",
+        "shadowfax.in",
+        "ecomexpress.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.bluedart.com",
+        "track.delhivery.com",
+        "www.dtdc.in"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce & Retail",
+      "verification_source": "Corporate Registrars / Express Logistics Consortium",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Major verified Indian express parcel delivery and courier tracking platforms"
+    },
+    {
+      "id": "td-in-flipkart",
+      "brand_name": "Flipkart",
+      "service_name": "Flipkart E-Commerce Marketplace",
+      "registrable_domain": "flipkart.com",
+      "official_domains": [
+        "flipkart.com",
+        "myntra.com"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.flipkart.com",
+        "affiliate.flipkart.com"
+      ],
+      "official_aliases": [],
+      "category": "E-commerce & Retail",
+      "verification_source": "Flipkart Private Limited Corporate Registry",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Leading Indian e-commerce marketplace"
+    },
+    {
+      "id": "td-in-telecom",
+      "brand_name": "Indian Telecom Providers",
+      "service_name": "Jio, Airtel & Vi Official Portals",
+      "registrable_domain": "jio.com",
+      "official_domains": [
+        "jio.com",
+        "airtel.in",
+        "myvi.in"
+      ],
+      "legitimate_subdomain_patterns": [
+        "www.jio.com",
+        "www.airtel.in",
+        "pay.airtel.in",
+        "www.myvi.in"
+      ],
+      "official_aliases": [],
+      "category": "Social Media & Communication",
+      "verification_source": "TRAI / Department of Telecommunications India",
+      "verification_date": "2026-11-20",
+      "last_checked": "2026-11-20",
+      "status": "VERIFIED",
+      "is_hosting_provider": false,
+      "trusted_score": 1.0,
+      "notes": "Authorized licensed telecom operators in India"
     }
   ]
 }

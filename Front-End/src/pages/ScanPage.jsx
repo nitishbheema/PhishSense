@@ -7,22 +7,29 @@ import {
   Fingerprint, Copy, ShieldCheck, RefreshCw, AlertCircle
 } from 'lucide-react'
 import jsQR from 'jsqr'
-import { useBehaviorTracker } from '../hooks/useBehaviorTracker'
-import { scanUrl, scanQr, analyzeWebsite, submitFeedback } from '../utils/api'
+import { scanUrl, scanQr, analyzeWebsite, auditWebsite, verifyDomainOwnership, submitFeedback } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
+import WebsiteAuditReport from '../components/WebsiteAuditReport'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TABS = [
-  { key: 'url',     label: 'Scan URL',         icon: ScanLine },
-  { key: 'qr',      label: 'Decode QR Code',   icon: QrCode },
-  { key: 'website', label: 'Analyze Website',  icon: Globe },
+  { key: 'url',   label: 'Quick Link Check',      icon: ScanLine },
+  { key: 'qr',    label: 'Decode QR Code',        icon: QrCode },
+  { key: 'audit', label: 'Website Security Audit', icon: Globe },
 ]
 
 const PRESET_SAMPLES = [
-  { label: 'Fake Bank Login', url: 'https://security-chase-verification.net/auth', tag: 'Phishing' },
-  { label: 'Manipulated Brand', url: 'https://paypa1-account-restore.xyz/login', tag: 'Typo' },
-  { label: 'Clean Site', url: 'https://github.com', tag: 'Safe' },
-  { label: 'Shortened Redirect', url: 'https://bit.ly/secure-cloud-access', tag: 'Redirect' },
+  { label: 'SBI KYC Update Scam (SMS)', url: 'http://sbi-kyc-pan-update.com/login', tag: 'Phishing' },
+  { label: 'India Post Delivery Fraud', url: 'http://indiapost-parce1-redelivery.in/track', tag: 'Phishing' },
+  { label: 'Electricity Bill Notice', url: 'http://bijli-bill-payment-alert.xyz/pay', tag: 'Phishing' },
+  { label: 'Official State Bank of India', url: 'https://onlinesbi.sbi', tag: 'Safe' },
+  { label: 'Official India Post Portal', url: 'https://www.indiapost.gov.in', tag: 'Safe' },
+]
+
+const AUDIT_PRESETS = [
+  { label: 'WordPress CMS Audit', url: 'https://wordpress.org' },
+  { label: 'Enterprise Reference (GitHub)', url: 'https://github.com' },
+  { label: 'API & Headers Sandbox', url: 'https://httpbin.org' },
 ]
 
 const RISK_CONFIG = {
@@ -30,11 +37,11 @@ const RISK_CONFIG = {
     color: '#e11d48',
     bg: '#fff1f2',
     border: '#fecdd3',
-    label: 'Phishing Detected',
+    label: 'Phishing Scam',
     badgeBg: '#ffe4e6',
     badgeText: '#be123c',
-    summary: 'High danger. This destination mimics authentic services to steal credentials or personal data.',
-    actionAdvice: 'Do not click or submit any personal information. Close this page immediately.',
+    summary: 'High danger. This destination mimics authentic services or is flagged in verified threat databases.',
+    actionAdvice: 'Do not click or submit any personal information, OTP, or passwords. Delete or close the message immediately.',
   },
   SUSPICIOUS: {
     color: '#d97706',
@@ -43,18 +50,48 @@ const RISK_CONFIG = {
     label: 'Suspicious Link',
     badgeBg: '#fef3c7',
     badgeText: '#b45309',
-    summary: 'Anomalous structural patterns detected (fresh domain, redirect cloaking, or unverified host).',
-    actionAdvice: 'Exercise caution. Avoid entering passwords or authorizing payments on this website.',
+    summary: 'Anomalous structural patterns detected (e.g., lookalike brand domain, unusual redirect hop, or unverified host).',
+    actionAdvice: 'Exercise extreme caution. Do not enter passwords, phone numbers, or authorize payments on this site.',
+  },
+  INSUFFICIENT_EVIDENCE: {
+    color: '#64748b',
+    bg: '#f8fafc',
+    border: '#cbd5e1',
+    label: 'Insufficient Evidence',
+    badgeBg: '#f1f5f9',
+    badgeText: '#475569',
+    summary: 'The target host is unreachable, DNS failed to resolve, or remote connection timed out. Absence of data is not proof of safety.',
+    actionAdvice: 'Do not trust this link blindly. Confirm with the authentic organization through official customer support.',
   },
   UNVERIFIED: {
+    color: '#64748b',
+    bg: '#f8fafc',
+    border: '#cbd5e1',
+    label: 'Insufficient Evidence',
+    badgeBg: '#f1f5f9',
+    badgeText: '#475569',
+    summary: 'The target host is unreachable, DNS failed to resolve, or remote connection timed out. Absence of data is not proof of safety.',
+    actionAdvice: 'Do not trust this link blindly. Confirm with the authentic organization through official customer support.',
+  },
+  ANALYSIS_FAILED: {
+    color: '#dc2626',
+    bg: '#fef2f2',
+    border: '#fecaca',
+    label: 'Analysis Incomplete',
+    badgeBg: '#fee2e2',
+    badgeText: '#991b1b',
+    summary: 'Scan analysis could not complete due to temporary service unavailability. Unverified links must not be assumed safe.',
+    actionAdvice: 'Please retry the scan in a moment. Never open unverified links sent via SMS or messaging apps.',
+  },
+  RATE_LIMITED: {
     color: '#d97706',
     bg: '#fffbeb',
     border: '#fde68a',
-    label: 'Suspicious (Unverified)',
+    label: 'Rate Limit Reached',
     badgeBg: '#fef3c7',
     badgeText: '#b45309',
-    summary: 'Target domain does not resolve or failed to respond. Unreachable sites are not granted a safe pass.',
-    actionAdvice: 'Verify the link directly with the authentic sender before proceeding.',
+    summary: 'You have submitted too many scan requests in a short time window. Please wait a moment before trying again.',
+    actionAdvice: 'Wait a few minutes to protect system availability for all users.',
   },
   LEGITIMATE: {
     color: '#059669',
@@ -63,8 +100,8 @@ const RISK_CONFIG = {
     label: 'Clean & Verified',
     badgeBg: '#dcfce7',
     badgeText: '#047857',
-    summary: 'Recognized legitimate domain structure with clean threat database records.',
-    actionAdvice: 'Safe to proceed. Standard browsing safety applies.',
+    summary: 'Recognized legitimate domain structure with clean threat database records and authentic brand identity.',
+    actionAdvice: 'Safe to proceed. Standard browsing precautions apply.',
   },
   LEGIT: {
     color: '#059669',
@@ -73,17 +110,17 @@ const RISK_CONFIG = {
     label: 'Clean & Verified',
     badgeBg: '#dcfce7',
     badgeText: '#047857',
-    summary: 'Recognized legitimate domain structure with clean threat database records.',
-    actionAdvice: 'Safe to proceed. Standard browsing safety applies.',
+    summary: 'Recognized legitimate domain structure with clean threat database records and authentic brand identity.',
+    actionAdvice: 'Safe to proceed. Standard browsing precautions apply.',
   },
 }
 
 function getRiskConfig(label, internalState) {
-  if (internalState === 'INSUFFICIENT_EVIDENCE') {
-    return RISK_CONFIG.UNVERIFIED
-  }
+  if (internalState === 'INSUFFICIENT_EVIDENCE') return RISK_CONFIG.INSUFFICIENT_EVIDENCE
+  if (internalState === 'ANALYSIS_FAILED') return RISK_CONFIG.ANALYSIS_FAILED
+  if (internalState === 'RATE_LIMITED') return RISK_CONFIG.RATE_LIMITED
   const key = (label || '').toUpperCase()
-  return RISK_CONFIG[key] || RISK_CONFIG.SUSPICIOUS
+  return RISK_CONFIG[key] || (key.includes('PHISH') ? RISK_CONFIG.PHISHING : key.includes('LEGIT') ? RISK_CONFIG.LEGITIMATE : RISK_CONFIG.SUSPICIOUS)
 }
 
 function RiskBar({ value, color, label }) {
@@ -891,7 +928,15 @@ export default function ScanPage() {
   const [error, setError] = useState(null)
   const [safePreviewUrl, setSafePreviewUrl] = useState(null)
 
-  const { snapshot } = useBehaviorTracker('scan', { snapshotInterval: 2500 })
+  // ── Website Audit State (Modules 1 - 10) ───────────────────────────────────
+  const [auditResult, setAuditResult] = useState(null)
+  const [auditLoading, setAuditLoading] = useState(false)
+  const [isOwnerAuthorized, setIsOwnerAuthorized] = useState(false)
+  const [showVerifyModal, setShowVerifyModal] = useState(false)
+  const [verifyDomainInput, setVerifyDomainInput] = useState('')
+  const [verifyToken] = useState('phishsense-audit-2026')
+  const [verifyStatus, setVerifyStatus] = useState(null)
+  const [verifyingDns, setVerifyingDns] = useState(false)
 
   const handleUrlScan = async (e) => {
     e?.preventDefault()
@@ -899,15 +944,19 @@ export default function ScanPage() {
     setLoading(true)
     setError(null)
     setResult(null)
+    setAuditResult(null)
     try {
-      const bFeatures = snapshot ? {
-        frontend_anomaly_score: snapshot.anomalyScore || 0,
-        paste_count: snapshot.pasteCount || 0,
-        rapid_clicks: snapshot.rapidClicks || 0,
-      } : null
-      const data = await scanUrl(urlInput.trim(), bFeatures)
-      if (data) setResult({ ...data, input_type: 'URL' })
-      else setError('Scan failed. Please verify the link format.')
+      // Clean scan without injecting scanner search-bar telemetry into target verdict
+      const data = await scanUrl(urlInput.trim(), null)
+      if (data) {
+        if (data.status === 'RATE_LIMITED' || data.verdict === 'RATE_LIMITED') {
+          setError(data.error_message || 'Rate limit reached: Maximum 30 scans per 5 minutes. Please wait a moment.')
+        } else {
+          setResult({ ...data, input_type: 'URL' })
+        }
+      } else {
+        setError('Scan failed. Please verify the link format.')
+      }
     } catch {
       setError('Service unavailable. Please retry shortly.')
     } finally {
@@ -919,10 +968,18 @@ export default function ScanPage() {
     setLoading(true)
     setError(null)
     setResult(null)
+    setAuditResult(null)
     try {
       const data = await scanQr(decodedUrl)
-      if (data) setResult({ ...data, input_type: 'QR', qr_decoded_url: decodedUrl })
-      else setError('QR destination analysis failed.')
+      if (data) {
+        if (data.status === 'RATE_LIMITED' || data.verdict === 'RATE_LIMITED') {
+          setError(data.error_message || 'Rate limit reached. Please wait a moment before rescanning.')
+        } else {
+          setResult({ ...data, input_type: 'QR', qr_decoded_url: decodedUrl })
+        }
+      } else {
+        setError('QR destination analysis failed.')
+      }
     } catch {
       setError('Service error during QR analysis.')
     } finally {
@@ -930,38 +987,49 @@ export default function ScanPage() {
     }
   }
 
-  const handleWebsiteScan = async (e) => {
+  const handleWebsiteAudit = async (e) => {
     e?.preventDefault()
     if (!urlInput.trim()) return
-    setLoading(true)
+    setAuditLoading(true)
     setError(null)
+    setAuditResult(null)
     setResult(null)
     try {
-      const data = await analyzeWebsite(urlInput.trim())
-      if (data) setResult({ ...data, input_type: 'WEBSITE' })
-      else setError('Website analysis failed.')
+      const data = await auditWebsite(urlInput.trim(), isOwnerAuthorized)
+      if (data && data.categories && data.categories.length > 0) {
+        setAuditResult(data)
+      } else if (data && data.error) {
+        setError(data.error)
+      } else {
+        setError('Audit service was unable to evaluate this destination.')
+      }
     } catch {
-      setError('Service unavailable.')
+      setError('Audit service temporarily unavailable. Please retry shortly.')
     } finally {
-      setLoading(false)
+      setAuditLoading(false)
     }
   }
 
-  // Adaptive Real-Time Risk Update
-  useEffect(() => {
-    if (result && snapshot && snapshot.anomalyScore > 40 && result.label === 'LEGIT') {
-      setResult(prev => ({
-        ...prev,
-        label: 'SUSPICIOUS',
-        threat_score: Math.min(100, prev.threat_score + 35),
-        risk_breakdown: {
-          ...prev.risk_breakdown,
-          behavior_risk: snapshot.anomalyScore,
-        },
-        flags: [...(prev.flags || []), 'Adaptive real-time behavioral anomaly trigger']
-      }))
+  const handleVerifyOwnership = async (e) => {
+    e?.preventDefault()
+    if (!verifyDomainInput.trim()) return
+    setVerifyingDns(true)
+    setVerifyStatus('Querying DNS TXT records for verification tag...')
+    try {
+      const res = await verifyDomainOwnership(verifyDomainInput.trim(), verifyToken)
+      if (res && res.verified) {
+        setIsOwnerAuthorized(true)
+        setVerifyStatus('Ownership verified! Authorized assessment mode activated.')
+        setTimeout(() => setShowVerifyModal(false), 1600)
+      } else {
+        setVerifyStatus(res?.message || 'Verification record not found. Please add the DNS TXT record and retry.')
+      }
+    } catch {
+      setVerifyStatus('DNS query failed. Please verify domain name.')
+    } finally {
+      setVerifyingDns(false)
     }
-  }, [snapshot, result])
+  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[#f8fafc] text-slate-900 py-10 px-4 sm:px-6">
@@ -976,7 +1044,7 @@ export default function ScanPage() {
         />
       )}
 
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className={`mx-auto space-y-6 transition-all ${activeTab === 'audit' ? 'max-w-4xl' : 'max-w-3xl'}`}>
         
         {/* Header */}
         <div className="text-center space-y-2.5">
@@ -985,10 +1053,12 @@ export default function ScanPage() {
             <span>Multi-Layer Threat Engine</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900">
-            Inspect Any Link, QR, or Webpage
+            {activeTab === 'audit' ? 'Website Security & Health Audit' : 'Inspect Any Link, QR, or Webpage'}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-            Test links in a secure sandbox before opening them on your phone or PC.
+          <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
+            {activeTab === 'audit'
+              ? 'Comprehensive 10-category inspection: Outdated software, known CVEs, TLS, security headers, RDAP age & website availability.'
+              : 'Test links in a secure sandbox before opening them on your phone or PC.'}
           </p>
 
           {/* User Status / Mode indicator */}
@@ -1019,7 +1089,13 @@ export default function ScanPage() {
           {TABS.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
-              onClick={() => { setActiveTab(key); setResult(null); setError(null); setUrlInput('') }}
+              onClick={() => {
+                setActiveTab(key)
+                setResult(null)
+                setAuditResult(null)
+                setError(null)
+                setUrlInput('')
+              }}
               className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === key
                   ? 'bg-white text-slate-900 shadow-sm border border-slate-200 font-semibold'
@@ -1088,38 +1164,85 @@ export default function ScanPage() {
           </div>
         )}
 
-        {/* Website Mode */}
-        {activeTab === 'website' && (
-          <form onSubmit={handleWebsiteScan} className="flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-1">
-              <Globe className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-              <input
-                type="text"
-                value={urlInput}
-                onChange={e => setUrlInput(e.target.value)}
-                placeholder="https://example-site.com"
-                required
-                className="clean-input w-full pl-10 pr-4 py-2.5 text-sm font-mono"
-              />
+        {/* Website Audit Mode (10 Categories) */}
+        {activeTab === 'audit' && (
+          <div className="space-y-4">
+            {/* Mode & Ownership Bar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 rounded-xl bg-white border border-slate-200 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-slate-700">
+                  Mode: <strong>{isOwnerAuthorized ? 'Owner-Authorized Assessment' : 'Public Passive Assessment'}</strong>
+                </span>
+                <span className="text-slate-400">({isOwnerAuthorized ? 'Authorized extended checks enabled' : 'Safe non-intrusive inspection'})</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowVerifyModal(true)}
+                className="text-xs font-semibold text-slate-800 hover:text-slate-950 underline cursor-pointer"
+              >
+                {isOwnerAuthorized ? 'Manage Domain Authorization' : 'Verify Domain Ownership'}
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={loading || !urlInput.trim()}
-              className="btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 font-medium"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-              <span>{loading ? 'Analyzing...' : 'Deep Inspect'}</span>
-            </button>
-          </form>
+
+            <form onSubmit={handleWebsiteAudit} className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Globe className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <input
+                  type="text"
+                  value={urlInput}
+                  onChange={e => setUrlInput(e.target.value)}
+                  placeholder="https://example.com or domain.org"
+                  required
+                  className="clean-input w-full pl-10 pr-4 py-2.5 text-sm font-mono"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={auditLoading || !urlInput.trim()}
+                className="btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 font-medium"
+              >
+                {auditLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+                <span>{auditLoading ? 'Auditing 10 Categories...' : 'Run Security Audit'}</span>
+              </button>
+            </form>
+
+            {/* Quick-test Presets for Audit */}
+            <div className="flex flex-wrap items-center gap-2 text-xs pt-0.5">
+              <span className="text-slate-500">Audit presets:</span>
+              {AUDIT_PRESETS.map(({ label, url }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setUrlInput(url)}
+                  className="px-2.5 py-1 rounded-md bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 flex items-center gap-1.5 transition cursor-pointer font-medium text-xs shadow-xs"
+                >
+                  <Globe className="w-3 h-3 text-slate-400" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
-        {/* Loading state */}
+        {/* Loading state for Quick Scan */}
         {loading && (
           <div className="human-card p-10 text-center space-y-2.5 animate-in fade-in bg-white border-slate-200">
             <Loader2 className="w-7 h-7 text-slate-700 animate-spin mx-auto" />
             <h3 className="text-sm font-semibold text-slate-900">Running Threat Pipeline</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               Extracting domain indicators · Scanning redirect chains · Cross-checking threat ledger
+            </p>
+          </div>
+        )}
+
+        {/* Loading state for Website Audit */}
+        {auditLoading && (
+          <div className="human-card p-10 text-center space-y-3 animate-in fade-in bg-white border-slate-200">
+            <Loader2 className="w-8 h-8 text-slate-800 animate-spin mx-auto" />
+            <h3 className="text-base font-semibold text-slate-900">Executing 10-Category Security & Health Audit</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+              Fingerprinting tech stack · Correlating NVD CVE vulnerabilities · Checking TLS & CT logs · Evaluating security headers · Testing website health & broken resources
             </p>
           </div>
         )}
@@ -1132,8 +1255,8 @@ export default function ScanPage() {
           </div>
         )}
 
-        {/* Scan Results */}
-        {!loading && result && (
+        {/* Quick Scan Results */}
+        {!loading && result && activeTab !== 'audit' && (
           <ResultPanel
             result={result}
             inputType={result.input_type || activeTab.toUpperCase()}
@@ -1141,17 +1264,74 @@ export default function ScanPage() {
           />
         )}
 
-        {/* Behavioral Telemetry HUD */}
-        {snapshot && (
-          <div className="p-2.5 rounded-lg bg-white border border-slate-200 flex items-center justify-between text-xs text-slate-500">
-            <div className="flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5 text-slate-700" />
-              <span>Behavioral Telemetry Online:</span>
-              <span className="font-mono text-slate-900 font-semibold">Anomaly Index {snapshot.anomalyScore}</span>
+        {/* Website Audit Results (10 Categories) */}
+        {!auditLoading && auditResult && activeTab === 'audit' && (
+          <WebsiteAuditReport
+            auditData={auditResult}
+            onRescan={handleWebsiteAudit}
+          />
+        )}
+
+        {/* Owner Verification Modal (Module 9) */}
+        {showVerifyModal && (
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-150">
+            <div className="human-card w-full max-w-md bg-white p-6 shadow-xl relative border border-slate-200 space-y-4">
+              <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                <ShieldCheck className="w-5 h-5 text-slate-900" />
+                <h3 className="text-base font-bold text-slate-900 m-0">Verify Domain Ownership</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                To activate <strong>Owner-Authorized Assessment</strong>, verify control of your domain by adding a DNS TXT record. This grants authorization without performing any intrusive or destructive actions.
+              </p>
+              
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs space-y-1.5 text-slate-800">
+                <div className="text-[11px] text-slate-500 font-sans font-semibold">Required DNS TXT Record:</div>
+                <div className="bg-white p-2 rounded border border-slate-200 break-all select-all text-slate-900 font-bold">
+                  phishsense-verification={verifyToken}
+                </div>
+              </div>
+
+              <form onSubmit={handleVerifyOwnership} className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Domain Name</label>
+                  <input
+                    type="text"
+                    value={verifyDomainInput}
+                    onChange={e => setVerifyDomainInput(e.target.value)}
+                    placeholder="example.com"
+                    required
+                    className="clean-input w-full px-3 py-2 text-xs font-mono"
+                  />
+                </div>
+
+                {verifyStatus && (
+                  <div className={`p-2.5 rounded-lg text-xs ${
+                    verifyStatus.includes('verified') || verifyStatus.includes('Verified')
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      : 'bg-amber-50 text-amber-800 border border-amber-200'
+                  }`}>
+                    {verifyStatus}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => { setShowVerifyModal(false); setVerifyStatus(null) }}
+                    className="btn-secondary flex-1 py-2 text-xs font-medium cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={verifyingDns || !verifyDomainInput.trim()}
+                    className="btn-primary flex-1 py-2 text-xs font-medium cursor-pointer disabled:opacity-50"
+                  >
+                    {verifyingDns ? 'Checking DNS...' : 'Verify DNS Record'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <span className="text-[11px] text-slate-400 font-mono">
-              Clicks: {snapshot.clicks?.length || 0} • Keys: {snapshot.keystrokes?.length || 0}
-            </span>
           </div>
         )}
 

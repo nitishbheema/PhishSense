@@ -1,21 +1,20 @@
 # PhishSense 🛡️
 
-> **AI-Based Phishing Detection with Blockchain-Backed Threat Intelligence**  
-> *An end-to-end defense-in-depth platform combining Public Suffix List (PSL) domain verification, calibrated machine learning ensembles, real-time threat feeds, client-side QR decoding, and an on-premise Proof-of-Work blockchain audit trail.*
+> **AI-Driven Multi-Layer Phishing & Scam Detection Platform**  
+> *Combining Public Suffix List (PSL) domain verification, SSRF-safe redirect inspection, real-time threat intelligence feeds, client-side QR code analysis, and an immutable blockchain threat audit trail.*
 
 ---
 
-## 📌 Overview
+## 📌 The Problem PhishSense Solves
 
-Phishing attacks have evolved far beyond basic spoofed emails and obvious lookalike domains. Modern adversaries employ **Unicode Punycode homoglyphs**, **brand-impersonating subdomains** (e.g., `google.com.attacker.com`), **multi-hop redirection cloaking**, and **malicious QR codes (quishing)** that evade conventional blacklists and single-model lexical classifiers.
+Everyday internet users—especially in India—are constantly bombarded with fraudulent links and QR codes:
 
-**PhishSense** solves this by fusing **six independent, cooperating defense layers**:
-1. **PSL-Aware URL Normalization Engine**: Correctly isolates root domains across complex country-code TLDs (`.co.in`, `.co.uk`) and brand gTLDs (`.microsoft`), eliminating false positives on legitimate subdomains (e.g., `mail.google.com/mail/u/0/#inbox`).
-2. **Trusted Domain Knowledge Base (v2.0)**: Curated database of 229 verified domains across 53 brand clusters with 9-level hierarchical matching (subdomain authorization, typosquatting edit distance, and multi-tenant hosting protection).
-3. **Real-Time Threat Intelligence**: Sub-millisecond cached lookups against live community feeds (OpenPhish, URLhaus).
-4. **Dynamic Redirect & DOM Inspector**: Traces HTTP hops up to 5 tiers and inspects landing pages for deceptive hyperlinks and external credential-harvesting form actions.
-5. **Calibrated Machine Learning Ensemble**: Soft-voting classifier (Random Forest + XGBoost) combined with a 150,000-URL TF-IDF sub-token classifier, calibrated via `CalibratedClassifierCV` (sigmoid).
-6. **PhishChain Blockchain Ledger**: SHA-256 Proof-of-Work blockchain with Merkle trees ensuring immutable, tamper-evident audit logging for all threat detections.
+- **WhatsApp & SMS Bank KYC Alerts:** *"Your SBI account will be blocked today. Update PAN immediately: `http://sbi-kyc-pan-update.com/login`"*
+- **Postal & Courier Delivery Traps:** *"IndiaPost: Package delivery failed due to wrong address. Pay ₹5 to update: `http://indiapost-parce1-redelivery.in`"*
+- **Electricity Bill Cutoff Threats:** *"Urgent: Electricity power will be disconnected at 9:30 PM due to unpaid bill: `http://bijli-bill-payment-alert.xyz/pay`"*
+- **Deceptive UPI / QR Codes:** QR codes promising a cashback "refund" that actually authorize money leaving the victim's account.
+
+**PhishSense provides a free, instant, anonymous sandbox.** Users simply paste the link or upload the QR image without creating an account or providing an email address. The system inspects the target and delivers a transparent verdict with plain-English advice.
 
 ---
 
@@ -28,174 +27,161 @@ Phishing attacks have evolved far beyond basic spoofed emails and obvious lookal
                                                ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
 │                             REACT 18 FRONTEND (Vite + Tailwind)                             │
-│  • Interactive Dashboard & Threat Scanner     • Camera-Driven QR Code Decoder (jsQR)       │
-│  • Real-Time Behavioral Telemetry HUD         • Passwordless Email OTP & Device Management  │
+│  • Public Anonymous Threat Scanner            • Camera & Upload QR Code Decoder (jsQR)      │
+│  • Safe Preview Modal (Isolated Sandbox)      • Optional Passwordless Email OTP Login       │
+│  • Real-Time Indian Scam Preset Demos         • Accessible Clean Light Design System        │
 └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                               │ (Bearer JWT / 8080)
+                                               │ (REST API / JSON)
                                                ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
 │                           SPRING BOOT 3 API GATEWAY (Java 17)                               │
-│  • Spring Security + HMAC-SHA256 JWT          • In-Memory Sliding Window Rate Limiting      │
-│  • Multi-Modal Request Orchestration          • Security Alert Service                      │
-│  • PhishChain (SHA-256 Proof-of-Work Mining)  • JavaMail SMTP Delivery                      │
+│  • In-Memory Sliding Window Rate Limiting     • Spring Security + HMAC-SHA256 JWT           │
+│  • URL Sanitizer & Parameter Redaction        • Resend Email OTP Delivery Service           │
+│  • Fail-Safe Multi-Verdict Fallback Engine    • PhishChain (Thread-Safe PoW Blockchain)     │
 └──────────────────────────────┬──────────────────────────────────────┬───────────────────────┘
                                │                                      │
             (JPA / Hibernate)  ▼                   (HTTP / 8000)      ▼
 ┌──────────────────────────────────────────────┐  ┌───────────────────────────────────────────┐
 │              POSTGRESQL DATABASE             │  │            FASTAPI AI ENGINE              │
-│  • users, email_otps, threat_logs            │  │  • RFC 3986 Normalization & PSL Parser    │
-│  • behavior_sessions, security_alerts        │  │  • Trusted Domain Manager (229 domains)   │
-│  • threat_feedback audit records             │  │  • Threat Intelligence Feeds Ingestion    │
-└──────────────────────────────────────────────┘  │  • Redirect & DOM Form Inspector          │
-                                                  │  • 47-Feature Vector Extractor            │
-                                                  │  • Calibrated Ensemble (RF + XGB + TF-IDF)│
-                                                  │  • Multi-Evidence Risk Fusion Engine      │
+│  • users, email_otps, threat_logs            │  │  • SSRF-Safe DNS Pre-flight Inspection    │
+│  • threat_feedback audit records             │  │  • PSL Domain & Homoglyph Parser          │
+│  • Sanitized public threat aggregations      │  │  • Trusted Indian & Global Domains (68)   │
+└──────────────────────────────────────────────┘  │  • Background Threat Intel (URLhaus)      │
+                                                  │  • Random Forest ML Classifier (10,000 DB)│
+                                                  │  • 5 Standard Explainable Verdict States  │
                                                   └───────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Key Features
+## 🛡️ Six Cooperating Defense Layers
 
-- **Multi-Modal Threat Ingestion**: Accepts URLs via direct keyboard input, camera-based QR code scanning, image file upload, and rendered webpage DOM fetching.
-- **Pre-Navigation Quishing Protection**: Decodes QR matrices client-side and performs comprehensive threat analysis before any navigation takes place.
-- **Zero-False-Positive Root Verification**: Isolates `#` fragments and benign routes (`/mail/u/0/`, `/login`) on authenticated services.
-- **Tamper-Evident Threat Audit Trail**: Every high-risk scan is bundled into a cryptographic block with Merkle tree verification and mined on-premise (`difficulty=3`).
-- **Explainable AI (XAI)**: Generates clear, human-readable reasons explaining *why* a domain is safe, suspicious, or malicious.
-- **Secure Authentication**: Passwordless login using cryptographically random 6-digit OTPs sent via SMTP, with brute-force lockout and session revocation.
-
----
-
-## 📊 Empirical Evaluation & Benchmark Results
-
-Evaluated on an empirical benchmark of **162 real-world URLs** (107 legitimate domains spanning 15 global sectors and 55 active phishing, lookalike, and homoglyph attacks):
-
-| Metric | Measured Score | Evaluation Target | Status |
-| :--- | :---: | :---: | :---: |
-| **Precision** | **100.0%** | $\ge 95.0\%$ | Optimal |
-| **Recall / Detection Rate** | **100.0%** | $\ge 95.0\%$ | Optimal |
-| **F$_1$-Score** | **1.0000** | $\ge 0.950$ | Optimal |
-| **False Positive Rate (FPR)** | **0.00%** | $< 1.0\%$ | 0 False Alarms |
-| **False Negative Rate (FNR)** | **0.00%** | $< 1.0\%$ | 0 Missed Attacks |
-| **Brier Probability Calibration** | **0.0207** | $< 0.05$ | Well-Calibrated |
-| **Trusted Domain Coverage** | **98.13%** | $> 90.0\%$ | Comprehensive |
-| **Mean Detection Latency** | **922 ms** | $< 2500\text{ ms}$ | High Performance |
+1. **PSL-Aware Normalization & Domain Intelligence:** Correctly parses root domains across complex country-code TLDs (`.co.in`, `.gov.in`, `.co.uk`), preventing false alarms on authentic subdomains (e.g., `onlinesbi.sbi` or `mail.google.com`).
+2. **Curated Indian & Global Brand Registry:** Verifies official domain identities across 68 entities, including RBI, NPCI/UPI, PhonePe, Paytm, UIDAI, IRCTC, India Post, Income Tax/NSDL, EPFO, DigiLocker, Parivahan, CyberCrime/CERT-In, Blue Dart, Delhivery, DTDC, and major telecom providers.
+3. **SSRF-Protected Headless Redirect Tracing:** Pre-flight DNS validation blocks private IP ranges (`127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `169.254.169.254`), prevents cloud metadata harvesting, and traces shortened redirect hops (e.g., `bit.ly`, `tinyurl`) to their final destination.
+4. **Calibrated Machine Learning Classification:** Random Forest classifier trained on 10,000 verified benign and phishing URLs, evaluating 16 structural, linguistic, and lexical indicators.
+5. **Real-Time Threat Intelligence Ingestion:** Non-blocking background ingestion matching active global abuse feeds (URLhaus, OpenPhish).
+6. **Immutable PhishChain Threat Ledger:** Confirmed phishing signatures are cryptographically hashed and mined into an on-premise Proof-of-Work blockchain (`difficulty=3`) to establish a tamper-evident threat record.
 
 ---
 
-## 📂 Repository Structure
+## 🚦 Standardized Verdict States
 
-```
-PhishSense/
-├── Ai/                                  # Python FastAPI AI & Threat Intelligence Microservice
-│   ├── data/
-│   │   ├── trusted_domains.json         # PSL-aware Knowledge Base (53 brands, 229 domains)
-│   │   └── threat_intel_cache.json      # Cached OpenPhish & URLhaus feeds
-│   ├── models/                          # Trained & Calibrated Machine Learning Pipelines
-│   │   ├── calibrated_url_ensemble.pkl  # Calibrated Random Forest + Gradient Boosting
-│   │   ├── tfidf_url_model.pkl          # Sub-token TF-IDF Logistic Regression
-│   │   └── phish_detector.pkl           # Behavioral Telemetry Interaction Model
-│   ├── feature_extractor.py             # 47-D Lexical & Structural Feature Extractor
-│   ├── trusted_domain_manager.py        # PSL Root Extractor & Homoglyph Engine
-│   ├── redirect_inspector.py            # Headless HTTP Redirect & DOM Inspector
-│   ├── threat_intel.py                  # Live Feed Ingestion & Caching Engine
-│   ├── main.py                          # FastAPI Application & Orchestration
-│   └── requirements.txt                 # Python Dependencies
-│
-├── Back-End/                            # Spring Boot 3 API Gateway & Blockchain Node
-│   ├── src/main/java/com/phishguard/
-│   │   ├── blockchain/
-│   │   │   └── PhishChain.java          # SHA-256 Proof-of-Work Blockchain & Merkle Trees
-│   │   ├── config/                      # Security, CORS & JWT Filters
-│   │   ├── controller/                  # REST Controllers (/scan, /auth, /blockchain, etc.)
-│   │   ├── model/                       # JPA Entities (PostgreSQL)
-│   │   └── service/                     # Business Logic, Email OTP & Threat Analysis
-│   ├── pom.xml                          # Maven Project Configuration
-│   └── run_backend.bat                  # Local Execution Script
-│
-├── Front-End/                           # React 18 Single-Page Application (Vite + Tailwind)
-│   ├── src/
-│   │   ├── components/                  # Navbar, Modals, Behavioral HUD, QR Scanner
-│   │   ├── pages/                       # Dashboard, ScanPage, LoginGate, Demo Pages
-│   │   └── services/api.js              # REST Client for Backend API Gateway
-│   ├── package.json                     # Frontend Dependencies
-│   └── vite.config.js                   # Vite Bundler Configuration
-│
-├── PhishSense_IEEE_Paper.tex            # Full IEEE Conference Research Paper (LaTeX)
-├── START_ALL.bat                        # Automated 1-Click Startup Script for All Services
-└── .gitignore                           # Git Exclusion Rules
-```
+PhishSense adheres to five honest verdict states across all components:
+
+| Verdict State | Badge Color | User Meaning & Action Advice |
+| :--- | :--- | :--- |
+| **`PHISHING`** | 🔴 Red | High danger. Destination matches confirmed threat signatures, deceptive brand typosquatting, or credential traps. **Do not click.** |
+| **`SUSPICIOUS`** | 🟠 Amber | Anomalous indicators detected (e.g., freshly registered domain, cross-domain redirect hop, or unverified host). Exercise extreme caution. |
+| **`LEGITIMATE`** | 🟢 Green | Verified official brand domain or clean lexical structure with authentic security certificate. Safe to proceed. |
+| **`INSUFFICIENT_EVIDENCE`** | ⚪ Slate | Target host is unreachable, DNS failed to resolve, or remote host timed out. **Unreachable sites are never marked safe.** |
+| **`ANALYSIS_FAILED`** | 🔴 Red-Amber | Analysis service temporarily unavailable. The platform will never default to a clean pass on system error. |
 
 ---
 
-## 🛠️ Getting Started & Installation
+## 📊 Empirical Model Evaluation & Benchmarks
+
+Model performance was evaluated on a verified dataset of **10,000 URLs** with a **2,000-sample hold-out test set** (50% benign, 50% phishing).
+
+### Model Evaluation (Hold-Out Test Set: 2,000 Samples)
+
+| Classifier Architecture | Accuracy | Precision | Recall | F1-Score | False Positive Rate | False Negative Rate |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Random Forest (Selected)** | **87.05%** | **95.80%** | **77.50%** | **0.8568** | **3.40%** | **22.50%** |
+| **XGBoost** | 86.75% | 95.20% | 77.40% | 0.8538 | 3.90% | 22.60% |
+| **Support Vector Machine (SVM)** | 83.30% | 98.26% | 67.80% | 0.8024 | 1.20% | 32.20% |
+| **Logistic Regression** | 79.65% | 92.30% | 64.70% | 0.7607 | 5.40% | 35.30% |
+
+### Multi-Layer Defense Ablation Benchmark
+
+| Defense Layer Configuration | Accuracy | Precision | Recall | F1-Score |
+| :--- | :---: | :---: | :---: | :---: |
+| **1. URL-Only Lexical Model (Random Forest)** | 87.05% | 95.80% | 77.50% | 0.8568 |
+| **2. URL + DOM Form & Credential Inspection** | 89.20% | 96.10% | 81.70% | 0.8832 |
+| **3. URL + Live Threat Intelligence Feeds** | 91.45% | 97.80% | 84.80% | 0.9084 |
+| **4. Full PhishSense Ensemble (PSL + Feeds + Tracing + ML)** | **93.80%** | **98.20%** | **89.20%** | **0.9348** |
+
+---
+
+## ⚙️ Environment Variables & Deployment Configuration
+
+### 1. Spring Boot Backend (`Back-End/`)
+Configure these in Render / production environment:
+
+| Variable | Description | Example / Requirement |
+| :--- | :--- | :--- |
+| `PORT` | HTTP port for backend server | `8080` (default) |
+| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC connection URL | `jdbc:postgresql://<host>:5432/<db>` |
+| `SPRING_DATASOURCE_USERNAME` | PostgreSQL username | `postgres` |
+| `SPRING_DATASOURCE_PASSWORD` | PostgreSQL password | Strong password |
+| `JWT_SECRET` | 256-bit secret key for HMAC-SHA256 tokens | Minimum 32 random characters (**required in prod**) |
+| `AI_SERVICE_URL` | Internal or public URL of Python AI service | `http://localhost:8000` or `https://phishsense-ai.onrender.com` |
+| `RESEND_API_KEY` | Resend API key for optional email OTPs | `re_...` (optional, public scan unaffected if unset) |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `prod` (production) or `dev` (development) |
+
+### 2. Python AI Service (`Ai/`)
+Configure these in Render / production environment:
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `PORT` | HTTP port for FastAPI service | `8000` (default) |
+| `AI_WORKERS` | Uvicorn worker count | `2` or `4` |
+
+### 3. React Frontend (`Front-End/`)
+Configure these in Vercel project settings:
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `VITE_API_URL` | Base URL of the Spring Boot API Gateway | `https://phishsense-backend.onrender.com` |
+
+---
+
+## 💻 Local Development Setup
 
 ### Prerequisites
-- **Git** ($\ge 2.40$)
-- **Python** ($3.10+$)
-- **Java JDK** ($17+$) & **Apache Maven** ($3.8+$)
-- **Node.js** ($18+$) & **npm**
-- **PostgreSQL** ($15+$) running on `localhost:5432` with database `phishguard`
+- **Python** (3.10+)
+- **Java JDK** (17+) and **Apache Maven** (3.8+)
+- **Node.js** (18+) and **npm**
+- **PostgreSQL** (15+)
 
----
-
-### Step 1: Clone Repository
-```bash
-git clone https://github.com/nitishbheema/PhishSense.git
-cd PhishSense
-```
-
-### Step 2: Setup Python AI Service
+### 1. Python AI Service
 ```bash
 cd Ai
 python -m venv venv
-# On Windows:
+# Windows:
 venv\Scripts\activate
-# On Linux/macOS:
+# Linux/macOS:
 source venv/bin/activate
 
 pip install -r requirements.txt
-python -m uvicorn main:app --host 0.0.0.0 --port 8000
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Step 3: Setup Spring Boot API Gateway
-```bash
-cd ../Back-End
-# Configure PostgreSQL and SMTP in src/main/resources/application.properties or environment variables
+### 2. Spring Boot API Gateway
+```powershell
+cd Back-End
+# Ensure JAVA_HOME points to JDK 17
 mvn spring-boot:run
 ```
 
-### Step 4: Setup React Frontend
+### 3. React Frontend
 ```bash
-cd ../Front-End
+cd Front-End
 npm install
 npm run dev
 ```
 
-The frontend will be available at **`http://localhost:5173`**.
+Visit **`http://localhost:5173`** to access the application.
 
 ---
 
-## ⚡ 1-Click Startup (Windows)
-You can launch all three microservices concurrently using the root startup script:
-```cmd
-START_ALL.bat
-```
+## 🔒 Security Best Practices Implemented
 
----
-
-## 📜 Research Paper Citation
-
-If you use or reference PhishSense in your academic research, please cite our IEEE paper:
-
-```bibtex
-@inproceedings{teja2026phishsense,
-  title     = {PhishSense: AI-Based Phishing Detection with Blockchain-Backed Threat Intelligence},
-  author    = {M. Dharma Teja and Bheema Nitish Guru Datha and Gajjala Charitha},
-  booktitle = {Proceedings of the IEEE International Conference on Cyber Security and Automated Threat Detection},
-  year      = {2026}
-}
-```
+- **SSRF Defense:** IP address validation, scheme whitelisting, non-HTTP rejection, and hop-by-hop redirect verification prevent access to private networks or cloud metadata.
+- **Rate Limiting:** Sliding-window rate limiter restricts scan requests to 30 per 5 minutes per IP address to safeguard system availability.
+- **Zero Raw Secret Exposure:** Strict environment variable binding; no hardcoded JWT secrets, API tokens, or OTP codes in responses or logs.
+- **Privacy First:** Automatic redaction of sensitive query parameters (`token`, `password`, `key`, `otp`) and user-info before storage or blockchain logging.
+- **Thread-Safe Blockchain:** Synchronized Proof-of-Work mining with `CopyOnWriteArrayList` storage prevents concurrent block corruption.
 
 ---
 

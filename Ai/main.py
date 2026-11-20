@@ -33,6 +33,7 @@ from feature_extractor import (
 )
 from redirect_inspector import redirect_inspector
 from trusted_domain_manager import trusted_domain_manager
+from website_audit_orchestrator import website_audit_orchestrator
 
 from url_extractor import (
     classify_domain_sector, compute_ai_deception_score
@@ -202,6 +203,11 @@ class WebsiteAnalysisResponse(BaseModel):
 class SimilarityRequest(BaseModel):
     url1: str
     url2: str
+
+class WebsiteAuditRequest(BaseModel):
+    url: str
+    is_owner_authorized: Optional[bool] = False
+    existing_first_seen: Optional[str] = None
 
 # ── Core Threat Classification Logic ──────────────────────────────────────────
 @app.post("/predict-url", response_model=UrlScanResponse)
@@ -425,6 +431,16 @@ async def predict_url(req: UrlScanRequest):
             "source": "REDIRECT_TRACER",
         })
 
+    # Evidence Channel SSRF Block:
+    if inspection.get("ssrf_blocked"):
+        fused_risk = max(fused_risk, 70)
+        top_flags.append("Security Alert: Target resolved to restricted internal/private IP")
+        evidence.append({
+            "factor": f"SSRF Blocked: Destination resolved to a private/reserved address ({inspection.get('error_msg')})",
+            "impact": "CRITICAL",
+            "source": "SSRF_FIREWALL"
+        })
+
     # Evidence Channel F: High-Abuse Suspicious TLD
     if feat_dict.get("suspicious_tld", 0) == 1:
         evidence.append({
@@ -481,19 +497,24 @@ async def predict_url(req: UrlScanRequest):
         verdict = "PHISHING"
         internal_state = "PHISHING"
         fused_risk = max(fused_risk, 75)
-        confidence = max(0.90, ml_prob)
+        confidence = max(0.85, ml_prob)
     elif td_result.get("is_trusted") and not td_result.get("is_hosting_provider") and not is_anchor_spoof and not dom_signals.get("has_spoofed_hyperlinks"):
         # Verified official domain or subdomain from Trusted Domain Knowledge Base
         verdict = "LEGITIMATE"
         internal_state = "LEGITIMATE"
         fused_risk = min(fused_risk, 4)
-        confidence = max(0.98, round(1.0 - ml_prob, 4))
+        confidence = 0.98
+    elif inspection.get("ssrf_blocked"):
+        verdict = "SUSPICIOUS"
+        internal_state = "SUSPICIOUS"
+        fused_risk = max(fused_risk, 70)
+        confidence = 0.80
     elif not fetch_success and feat_dict.get("dns_resolved", 1) == 0:
         # Host could not be reached or resolved in DNS -> INSUFFICIENT EVIDENCE
         internal_state = "INSUFFICIENT_EVIDENCE"
-        verdict = "SUSPICIOUS"
-        fused_risk = 45
-        confidence = 0.50
+        verdict = "INSUFFICIENT_EVIDENCE"
+        fused_risk = 35
+        confidence = 0.30
         evidence.insert(0, {
             "factor": "Insufficient Evidence: Host could not be reached or resolved in DNS. No verified proof of safety exists.",
             "impact": "MEDIUM",
@@ -503,13 +524,13 @@ async def predict_url(req: UrlScanRequest):
     elif fused_risk >= 50 or cross_domain or feat_dict.get("suspicious_tld", 0) == 1:
         verdict = "SUSPICIOUS"
         internal_state = "SUSPICIOUS"
-        confidence = max(0.70, ml_prob)
+        confidence = max(0.60, ml_prob)
     else:
-        # Verified clean
+        # No significant malicious indicators found on checked signals
         verdict = "LEGITIMATE"
         internal_state = "LEGITIMATE"
-        fused_risk = min(fused_risk, 18)
-        confidence = max(0.88, round(1.0 - ml_prob, 4))
+        fused_risk = min(fused_risk, 20)
+        confidence = round(1.0 - ml_prob, 4)
 
     ai_deception = compute_ai_deception_score(feat_dict, dom_signals if dom_signals else None)
 
@@ -662,6 +683,22 @@ def calculate_similarity(req: SimilarityRequest):
         "feature_overlap": list(f1.intersection(f2)),
         "threat_relationship": "Related Campaign Member" if is_related else "Independent Threat"
     }
+
+@app.get("/threat-intel/status")
+def get_threat_intel_status():
+    return threat_intel.get_status()
+
+@app.post("/audit-website")
+async def audit_website_endpoint(req: WebsiteAuditRequest):
+    raw_url = req.url.strip()
+    if not raw_url:
+        raise HTTPException(status_code=400, detail="URL cannot be empty")
+    return await website_audit_orchestrator.execute_audit(
+        url=raw_url,
+        is_owner_authorized=req.is_owner_authorized or False,
+        existing_first_seen=req.existing_first_seen
+    )
+
 
 if __name__ == "__main__":
     import uvicorn

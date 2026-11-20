@@ -1,6 +1,7 @@
 package com.phishguard.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
@@ -21,12 +23,45 @@ public class JwtService {
 
     private static final Logger log = LoggerFactory.getLogger(JwtService.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String DEFAULT_DEV_SECRET = "phishguard-ultra-secure-jwt-secret-key-32chars-min-2026";
 
-    @Value("${jwt.secret:phishguard-ultra-secure-jwt-secret-key-32chars-min-2026}")
-    private String secret;
+    @Value("${jwt.secret:}")
+    private String configuredSecret;
 
     @Value("${jwt.expiration-days:7}")
     private long expirationDays;
+
+    private String activeSecret;
+
+    @PostConstruct
+    public void validateAndInitializeSecret() {
+        boolean isProduction = System.getenv("RENDER") != null
+                || "production".equalsIgnoreCase(System.getenv("SPRING_PROFILES_ACTIVE"))
+                || "prod".equalsIgnoreCase(System.getenv("SPRING_PROFILES_ACTIVE"));
+
+        if (configuredSecret != null && !configuredSecret.isBlank()) {
+            if (isProduction && configuredSecret.equals(DEFAULT_DEV_SECRET)) {
+                log.error("[SECURITY ALERT] Default hardcoded JWT secret cannot be used in production!");
+                throw new IllegalStateException("CRITICAL SECURITY ERROR: Production deployment requires a custom, non-default JWT_SECRET environment variable.");
+            }
+            if (configuredSecret.length() < 32) {
+                log.error("[SECURITY ALERT] Configured JWT secret is too short ({} chars). Minimum required is 32 characters.", configuredSecret.length());
+                throw new IllegalStateException("JWT secret must be at least 32 characters (256 bits).");
+            }
+            this.activeSecret = configuredSecret;
+            log.info("[JwtService] Initialized with validated custom secret.");
+        } else {
+            if (isProduction) {
+                log.error("[SECURITY ALERT] Missing required JWT_SECRET in production environment!");
+                throw new IllegalStateException("CRITICAL SECURITY ERROR: JWT_SECRET environment variable is missing.");
+            }
+            // In local development without secret configured, generate an ephemeral random 256-bit key
+            byte[] randomKey = new byte[32];
+            new SecureRandom().nextBytes(randomKey);
+            this.activeSecret = Base64.getUrlEncoder().withoutPadding().encodeToString(randomKey);
+            log.warn("[JwtService] No JWT_SECRET set. Generated ephemeral 256-bit key for local development.");
+        }
+    }
 
     public String generateToken(String userId, String email) {
         try {
@@ -49,7 +84,7 @@ public class JwtService {
 
             // Signature
             String dataToSign = encodedHeader + "." + encodedPayload;
-            String signature = sign(dataToSign, secret);
+            String signature = sign(dataToSign, activeSecret);
 
             return dataToSign + "." + signature;
         } catch (Exception e) {
@@ -66,7 +101,7 @@ public class JwtService {
             }
 
             String dataToSign = parts[0] + "." + parts[1];
-            String expectedSignature = sign(dataToSign, secret);
+            String expectedSignature = sign(dataToSign, activeSecret);
             if (!MessageDigest.isEqual(parts[2].getBytes(StandardCharsets.UTF_8), expectedSignature.getBytes(StandardCharsets.UTF_8))) {
                 return false;
             }
