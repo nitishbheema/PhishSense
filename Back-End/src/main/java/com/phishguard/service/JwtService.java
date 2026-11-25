@@ -39,16 +39,18 @@ public class JwtService {
                 || "production".equalsIgnoreCase(System.getenv("SPRING_PROFILES_ACTIVE"))
                 || "prod".equalsIgnoreCase(System.getenv("SPRING_PROFILES_ACTIVE"));
 
-        if (configuredSecret != null && !configuredSecret.isBlank()) {
-            if (isProduction && configuredSecret.equals(DEFAULT_DEV_SECRET)) {
+        String cleanSecret = sanitizeSecret(configuredSecret);
+
+        if (cleanSecret != null && !cleanSecret.isBlank()) {
+            if (isProduction && cleanSecret.equals(DEFAULT_DEV_SECRET)) {
                 log.error("[SECURITY ALERT] Default hardcoded JWT secret cannot be used in production!");
                 throw new IllegalStateException("CRITICAL SECURITY ERROR: Production deployment requires a custom, non-default JWT_SECRET environment variable.");
             }
-            if (configuredSecret.length() < 32) {
-                log.error("[SECURITY ALERT] Configured JWT secret is too short ({} chars). Minimum required is 32 characters.", configuredSecret.length());
+            if (cleanSecret.length() < 32) {
+                log.error("[SECURITY ALERT] Configured JWT secret is too short ({} chars). Minimum required is 32 characters.", cleanSecret.length());
                 throw new IllegalStateException("JWT secret must be at least 32 characters (256 bits).");
             }
-            this.activeSecret = configuredSecret;
+            this.activeSecret = cleanSecret;
             log.info("[JwtService] Initialized with validated custom secret.");
         } else {
             if (isProduction) {
@@ -61,6 +63,16 @@ public class JwtService {
             this.activeSecret = Base64.getUrlEncoder().withoutPadding().encodeToString(randomKey);
             log.warn("[JwtService] No JWT_SECRET set. Generated ephemeral 256-bit key for local development.");
         }
+    }
+
+    private String sanitizeSecret(String secret) {
+        if (secret == null) return null;
+        String s = secret.trim();
+        while ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"))) {
+            if (s.length() <= 2) break;
+            s = s.substring(1, s.length() - 1).trim();
+        }
+        return s;
     }
 
     public String generateToken(String userId, String email) {

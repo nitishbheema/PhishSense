@@ -52,6 +52,7 @@ public class WebsiteAuditController {
         }
         String url = rawUrl.trim();
         Boolean isOwnerAuthorized = (Boolean) req.getOrDefault("is_owner_authorized", false);
+        Boolean submitToUrlscan = (Boolean) req.getOrDefault("submit_to_urlscan", false);
 
         // 1. Sliding Window Rate Limiting (30 scans per 5 minutes per IP)
         String clientIp = getClientIp(httpReq);
@@ -81,6 +82,7 @@ public class WebsiteAuditController {
         Map<String, Object> auditPayload = new LinkedHashMap<>();
         auditPayload.put("url", url);
         auditPayload.put("is_owner_authorized", isOwnerAuthorized);
+        auditPayload.put("submit_to_urlscan", submitToUrlscan);
         if (existingFirstSeen != null) {
             auditPayload.put("existing_first_seen", existingFirstSeen);
         }
